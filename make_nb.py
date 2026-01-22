@@ -166,18 +166,50 @@ def t5(zL,zS,tE):
     return out, fig
 
 def t6(zL,zS,tE):
-    DL,DS,DLS=cosmo(zL,zS); RE=tE*A*DL; M=mass(tE,DL,DS,DLS)
-    fig=plt.figure(figsize=(8,7)); ax=fig.add_subplot(111,projection='3d')
-    ax.scatter([0],[0],[DS/Mpc],s=200,c='yellow',edgecolors='orange',label='Observer')
-    ax.scatter([0],[0],[(DS-DL)/Mpc],s=150,c='red',marker='s',label='Lens')
-    th=np.linspace(0,2*np.pi,50)
-    ax.plot(RE/Mpc*np.cos(th),RE/Mpc*np.sin(th),[(DS-DL)/Mpc]*50,'g-',lw=2,label=f'Einstein Ring (R_E={RE/1e3:.1f} kpc)')
-    ax.scatter([0],[0],[0],s=150,c='blue',marker='*',label='Source')
-    ax.plot([0,0],[0,0],[0,DS/Mpc],'k--',alpha=0.3,lw=1)
-    ax.set_zlim(0,DS/Mpc*1.1); ax.legend(loc='upper left')
-    ax.set_xlabel('X [Mpc]'); ax.set_ylabel('Y [Mpc]'); ax.set_zlabel('Distance from Source [Mpc]')
-    ax.set_title('3D Lensing Geometry: Observer → Lens → Source')
-    out=f"## 3D Scene\\n| Param | Value |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| R_E | {RE/1e3:.2f} kpc |\\n| M | {M:.2e} M☉ |"
+    DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
+    alpha=tE*A  # deflection angle in radians
+    fig=plt.figure(figsize=(14,6))
+    # LEFT: 3D Geodesics (physical ray paths)
+    ax1=fig.add_subplot(121,projection='3d')
+    # Positions: Observer at z=0, Lens at z=DL, Source at z=DS
+    zO,zL_pos,zS_pos=0,DL/Mpc,DS/Mpc
+    ax1.scatter([0],[0],[zO],s=200,c='yellow',edgecolors='orange',label='Observer',zorder=10)
+    ax1.scatter([0],[0],[zL_pos],s=150,c='red',marker='s',label='Lens',zorder=10)
+    ax1.scatter([0],[0],[zS_pos],s=150,c='blue',marker='*',label='Source',zorder=10)
+    # Draw geodesics: light bends AT the lens plane, not a ring in space
+    nrays=8
+    for i in range(nrays):
+        phi=2*np.pi*i/nrays
+        # Impact parameter at lens = theta_E * D_L (in Mpc for plotting scale)
+        b=tE*1e-3  # scale for visibility (arcsec to plotting units)
+        xL,yL=b*np.cos(phi),b*np.sin(phi)
+        # Ray from observer to lens plane (incoming)
+        ax1.plot([0,xL],[0,yL],[zO,zL_pos],'c-',alpha=0.7,lw=1.5)
+        # Ray from lens to source (deflected toward optical axis)
+        ax1.plot([xL,0],[yL,0],[zL_pos,zS_pos],'c-',alpha=0.7,lw=1.5)
+    # Optical axis
+    ax1.plot([0,0],[0,0],[zO,zS_pos],'k--',alpha=0.3,lw=1,label='Optical Axis')
+    # Lens plane indicator (NOT a ring!)
+    th=np.linspace(0,2*np.pi,30)
+    ax1.plot(tE*1e-3*np.cos(th),tE*1e-3*np.sin(th),[zL_pos]*30,'r:',alpha=0.5,lw=1)
+    ax1.set_xlabel('X (scaled)'); ax1.set_ylabel('Y (scaled)'); ax1.set_zlabel('Distance [Mpc]')
+    ax1.set_title('Geodesics: Light bends at Lens Plane')
+    ax1.legend(loc='upper left',fontsize=8)
+    # RIGHT: Observer Sky (where the ring ACTUALLY exists)
+    ax2=fig.add_subplot(122)
+    th=np.linspace(0,2*np.pi,100)
+    ax2.plot(tE*np.cos(th),tE*np.sin(th),'g-',lw=3,label=f'Einstein Ring (θ_E={tE:.3f}")')
+    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Lens (center)')
+    ax2.scatter([0],[0],s=50,c='blue',marker='*',alpha=0.5,label='Source (behind lens)')
+    ax2.set_xlim(-tE*2,tE*2); ax2.set_ylim(-tE*2,tE*2)
+    ax2.set_aspect('equal'); ax2.grid(alpha=0.3)
+    ax2.set_xlabel('θ_x [arcsec]'); ax2.set_ylabel('θ_y [arcsec]')
+    ax2.set_title('Observer Sky: Ring is ANGULAR projection')
+    ax2.legend(loc='upper right',fontsize=8)
+    ax2.annotate('Ring exists HERE\\n(in observer\\'s view)',xy=(tE*0.7,tE*0.7),fontsize=9,ha='center',
+                 bbox=dict(boxstyle='round',fc='lightyellow',alpha=0.8))
+    plt.tight_layout()
+    out=f"## Geodesic Lensing\\n**Key insight:** The Einstein ring is NOT a physical object in space.\\nIt is a **projection on the observer\\'s sky** (right panel).\\n\\n| Param | Value |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| α (deflection) | {np.degrees(alpha)*3600:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Left:** Geodesics bend at lens plane\\n**Right:** Ring appears in angular coordinates"
     return out, fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
