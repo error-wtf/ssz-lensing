@@ -168,29 +168,58 @@ def t5(zL,zS,tE):
 def t6(txt,u,zL,zS,tE):
     pos=parse(txt,u); DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     n=len(pos); cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    zS_n,zL_n,zO_n=0,0.35,1; rng=0.18
+    # 3D scene: Source(z=0) -> Lens(z=0.35) -> Observer(z=1)
+    # NO Einstein Ring here - it belongs only in angular sky projection
+    zS_n,zL_n,zO_n=0,0.35,1
     fig=go.Figure()
-    # Source
-    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle'))
-    # Lens
+    # Source (real position)
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle (real)'))
+    # Lens (real position)
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zL_n],mode='markers',marker=dict(size=12,color='red',symbol='square'),name='Linse'))
-    # Observer
+    # Observer (real position)
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zO_n],mode='markers',marker=dict(size=12,color='#5dade2'),name='Beobachter'))
-    # Einstein Ring
-    th=np.linspace(0,2*np.pi,50)
-    fig.add_trace(go.Scatter3d(x=rng*np.cos(th),y=rng*np.sin(th),z=[zO_n]*50,mode='lines',line=dict(color='green',dash='dash',width=3),name='Einstein Ring'))
-    # Geodesics
+    # Geodesics: Light rays bending around lens
     angs=np.arctan2(pos[:,1],pos[:,0]) if n>0 else np.array([0,np.pi/2,np.pi,3*np.pi/2])
-    rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if n>0 and tE>0 else np.ones(4)
     for i in range(min(n,4)):
-        phi=angs[i]; r_s=min(rads[i],1.3)*rng
-        xi,yi=r_s*np.cos(phi),r_s*np.sin(phi); bd=0.04
-        fig.add_trace(go.Scatter3d(x=[0,bd*np.cos(phi+np.pi),xi],y=[0,bd*np.sin(phi+np.pi),yi],z=[zS_n,zL_n,zO_n],mode='lines+markers',line=dict(color=cols[i],width=4),marker=dict(size=6,color=cols[i]),name=f'Bild {i+1}'))
-    fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z',bgcolor='#0a0a1a',xaxis=dict(range=[-.25,.25]),yaxis=dict(range=[-.25,.25]),zaxis=dict(range=[-.05,1.05])),title='3D Geodäten (mit Maus rotierbar)',margin=dict(l=0,r=0,t=40,b=0),height=500)
-    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Mit Maus rotierbar!**"
+        phi=angs[i]; bd=0.06
+        # Ray path: Source -> deflection at lens -> arrives at observer from apparent direction
+        # The ray bends at the lens, so we show: source -> lens vicinity -> observer
+        fig.add_trace(go.Scatter3d(x=[0,bd*np.cos(phi),0],y=[0,bd*np.sin(phi),0],z=[zS_n,zL_n,zO_n],mode='lines',line=dict(color=cols[i],width=4),name=f'Geodäte {i+1}'))
+    fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z (Entfernung)',bgcolor='#0a0a1a',xaxis=dict(range=[-.15,.15]),yaxis=dict(range=[-.15,.15]),zaxis=dict(range=[-.05,1.05])),title='3D Geodäten: Licht biegt um Linse (rotierbar)',margin=dict(l=0,r=0,t=40,b=0),height=500)
+    out=f"## 3D Lichtablenkung\\n**{n} Geodäten** von Quelle zum Beobachter\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Hinweis:** Einstein-Ring existiert NUR als Winkelprojektion am Beobachterhimmel (siehe Sky Panel)"
     return out, fig
 
-def t7(zL,zS,tE):
+def t7_sky(txt,u,tE):
+    pos=parse(txt,u); n=len(pos); p=pos/A  # convert to arcsec
+    cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
+    fig,ax=plt.subplots(figsize=(8,8))
+    ax.set_facecolor('#0a0a1a')
+    # Einstein Ring as angular reference circle (THIS IS CORRECT HERE)
+    th=np.linspace(0,2*np.pi,100)
+    ax.plot(tE*np.cos(th),tE*np.sin(th),'g--',lw=2,alpha=0.8,label=f'Einstein Ring θ_E={tE:.3f}"')
+    # Lens center
+    ax.scatter([0],[0],s=150,c='red',marker='+',lw=3,zorder=10,label='Linse (Zentrum)')
+    # Image positions (apparent positions on sky)
+    for i in range(min(n,4)):
+        ax.scatter([p[i,0]],[p[i,1]],s=150,c=cols[i],edgecolors='white',lw=2,zorder=5)
+        ax.annotate(f'  Bild {i+1}',(p[i,0],p[i,1]),fontsize=10,color=cols[i],weight='bold')
+    lim=max(tE*1.8,np.max(np.abs(p))*1.3) if n>0 else tE*2
+    ax.set_xlim(-lim,lim); ax.set_ylim(-lim,lim)
+    ax.set_aspect('equal'); ax.grid(alpha=0.3,color='white')
+    ax.set_xlabel('θ_x [arcsec]',fontsize=12); ax.set_ylabel('θ_y [arcsec]',fontsize=12)
+    ax.set_title('Observer Sky: Winkelprojektion (θx, θy)',fontsize=14)
+    ax.legend(loc='upper right',fontsize=10)
+    ax.tick_params(colors='white')
+    for spine in ax.spines.values(): spine.set_color('white')
+    plt.tight_layout()
+    out=f"## Observer Sky Panel\\n**Korrekte Darstellung:** Einstein-Ring als Winkelprojektion\\n\\n| Bild | θ_x | θ_y | r |\\n|--|--|--|--|\\n"
+    for i in range(min(n,4)):
+        r_i=np.hypot(p[i,0],p[i,1])
+        out+=f"| {i+1} | {p[i,0]:.4f}\" | {p[i,1]:.4f}\" | {r_i:.4f}\" |\\n"
+    out+=f"\\n| θ_E | {tE:.4f}\" |\\n\\n**Der grüne Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
+    return out, fig
+
+def t8(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     r_s=2*G*M*Ms/c**2  # Schwarzschild radius
     R_E=tE*A*DL  # Einstein radius in meters
@@ -260,9 +289,13 @@ with gr.Blocks(title='RSG Lensing') as demo:
     with gr.Tab('3D Scene'):
         b6=gr.Button('Plot 3D',variant='primary'); o6=gr.Markdown(); p6=gr.Plot()
         b6.click(t6,[txt,unit,zL,zS,tE],[o6,p6])
+    with gr.Tab('Sky Panel'):
+        gr.Markdown('**Korrekte Darstellung:** Einstein-Ring als Winkelprojektion am Beobachterhimmel')
+        b7=gr.Button('Show Sky',variant='primary'); o7=gr.Markdown(); p7=gr.Plot()
+        b7.click(t7_sky,[txt,unit,tE],[o7,p7])
     with gr.Tab('Radial Gauge'):
-        b7=gr.Button('Calc RSG',variant='primary'); o7=gr.Markdown(); p7=gr.Plot()
-        b7.click(t7,[zL,zS,tE],[o7,p7])
+        b8=gr.Button('Calc RSG',variant='primary'); o8=gr.Markdown(); p8=gr.Plot()
+        b8.click(t8,[zL,zS,tE],[o8,p8])
 demo.launch(share=True)
 '''
 
@@ -285,4 +318,4 @@ nb = {
 with open('SSZ_Lensing_Colab.ipynb', 'w', encoding='utf-8') as f:
     json.dump(nb, f, indent=2)
 
-print('Created SSZ_Lensing_Colab.ipynb with 7 tabs')
+print('Created SSZ_Lensing_Colab.ipynb with 8 tabs')
