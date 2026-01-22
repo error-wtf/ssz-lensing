@@ -168,25 +168,42 @@ def t5(zL,zS,tE):
 def t6(txt,u,zL,zS,tE):
     pos=parse(txt,u); DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     n=len(pos); cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    # 3D scene: Source(z=0) -> Lens(z=0.35) -> Observer(z=1)
-    # NO Einstein Ring here - it belongs only in angular sky projection
+    # Physical: b_E = D_L * theta_E (impact parameter at lens plane)
+    b_E=DL*tE*A  # in meters
+    b_E_kpc=b_E/(1e3*pc)  # in kpc for display
+    # Normalized coords: Source(z=0) -> Lens(z=zL_n) -> Observer(z=1)
     zS_n,zL_n,zO_n=0,0.35,1
+    # Scale factor for visualization (normalized units)
+    scale=0.12  # visual scale
     fig=go.Figure()
-    # Source (real position)
-    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle (real)'))
-    # Lens (real position)
-    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zL_n],mode='markers',marker=dict(size=12,color='red',symbol='square'),name='Linse'))
-    # Observer (real position)
+    # Source
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle'))
+    # Lens
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zL_n],mode='markers',marker=dict(size=14,color='red',symbol='square'),name='Linse'))
+    # Observer
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zO_n],mode='markers',marker=dict(size=12,color='#5dade2'),name='Beobachter'))
-    # Geodesics: Light rays bending around lens
+    # Impact parameter circle at LENS PLANE (z = zL_n) - THIS IS b_E, NOT theta_E!
+    th=np.linspace(0,2*np.pi,60)
+    fig.add_trace(go.Scatter3d(x=scale*np.cos(th),y=scale*np.sin(th),z=[zL_n]*60,mode='lines',line=dict(color='lime',width=4),name=f'Impact circle b_E'))
+    # Ray paths with crossing points at lens plane
     angs=np.arctan2(pos[:,1],pos[:,0]) if n>0 else np.array([0,np.pi/2,np.pi,3*np.pi/2])
+    rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if n>0 and tE>0 else np.ones(4)
+    b_vals=[]
     for i in range(min(n,4)):
-        phi=angs[i]; bd=0.06
-        # Ray path: Source -> deflection at lens -> arrives at observer from apparent direction
-        # The ray bends at the lens, so we show: source -> lens vicinity -> observer
-        fig.add_trace(go.Scatter3d(x=[0,bd*np.cos(phi),0],y=[0,bd*np.sin(phi),0],z=[zS_n,zL_n,zO_n],mode='lines',line=dict(color=cols[i],width=4),name=f'Geodäte {i+1}'))
-    fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z (Entfernung)',bgcolor='#0a0a1a',xaxis=dict(range=[-.15,.15]),yaxis=dict(range=[-.15,.15]),zaxis=dict(range=[-.05,1.05])),title='3D Geodäten: Licht biegt um Linse (rotierbar)',margin=dict(l=0,r=0,t=40,b=0),height=500)
-    out=f"## 3D Lichtablenkung\\n**{n} Geodäten** von Quelle zum Beobachter\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Hinweis:** Einstein-Ring existiert NUR als Winkelprojektion am Beobachterhimmel (siehe Sky Panel)"
+        phi=angs[i]; r_n=min(rads[i],1.2)*scale  # normalized impact param
+        bx,by=r_n*np.cos(phi),r_n*np.sin(phi)  # crossing point at lens plane
+        b_vals.append(np.hypot(bx,by)/scale)  # ratio to b_E
+        # Ray: Source -> lens crossing -> Observer
+        fig.add_trace(go.Scatter3d(x=[0,bx,0],y=[0,by,0],z=[zS_n,zL_n,zO_n],mode='lines+markers',line=dict(color=cols[i],width=4),marker=dict(size=[4,8,4],color=cols[i]),name=f'Ray {i+1}'))
+    fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z',bgcolor='#0a0a1a',xaxis=dict(range=[-.18,.18]),yaxis=dict(range=[-.18,.18]),zaxis=dict(range=[-.05,1.05])),title='3D: Impact circle (b) at Lens Plane',margin=dict(l=0,r=0,t=40,b=0),height=550)
+    # Output with b_i values
+    out=f"## 3D Lens Geometry\\n\\n**Impact circle at lens plane** (NOT Einstein Ring!)\\n\\n"
+    out+=f"| Parameter | Wert |\\n|--|--|\\n"
+    out+=f"| b_E = D_L x theta_E | {b_E_kpc:.2f} kpc |\\n"
+    out+=f"| D_L | {DL/Mpc:.1f} Mpc |\\n| theta_E | {tE:.4f} arcsec |\\n\\n"
+    out+=f"**Ray impact parameters (b_i / b_E):**\\n\\n"
+    for i,bv in enumerate(b_vals): out+=f"- Ray {i+1}: b/b_E = {bv:.3f}\\n"
+    out+=f"\\n*Gruener Kreis = Impact circle bei z=D_L (Linsenebene)*"
     return out, fig
 
 def t7_sky(txt,u,tE):
