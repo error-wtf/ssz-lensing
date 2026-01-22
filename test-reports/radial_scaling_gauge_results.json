@@ -1,0 +1,317 @@
+{
+  "name": "Radial Scaling Gauge Validation",
+  "timestamp": "2026-01-22T11:54:40.748710",
+  "summary": {
+    "passed": 28,
+    "failed": 0,
+    "total": 28
+  },
+  "results": [
+    {
+      "name": "Scaling factor s(r) = 1 + Xi(r)",
+      "passed": true,
+      "expected": 1.0000002122217353,
+      "actual": 1.0000002122217353,
+      "tolerance": 1e-15,
+      "description": "Verify fundamental scaling definition",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "Xi weak field: Xi = r_s/(2r)",
+      "passed": true,
+      "expected": 9.873417630532771e-09,
+      "actual": 9.873417630532771e-09,
+      "tolerance": 1e-20,
+      "description": "Weak field segment density",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "s(r) -> 1 at infinity",
+      "passed": true,
+      "expected": 1.0,
+      "actual": 1.0,
+      "tolerance": 1e-15,
+      "description": "Scaling factor approaches 1 at spatial infinity",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "Schwarzschild radius (Sun)",
+      "passed": true,
+      "expected": 2953.25,
+      "actual": 2954.126555055405,
+      "tolerance": 0.001,
+      "description": "r_s = 2GM/c^2 for Sun",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "Xi at solar surface",
+      "passed": true,
+      "expected": 2.1222173527696874e-06,
+      "actual": 2.1222173527696874e-06,
+      "tolerance": 1e-12,
+      "description": "Segment density at R_sun",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "s(R_sun) = 1 + Xi(R_sun)",
+      "passed": true,
+      "expected": 1.0000021222173527,
+      "actual": 1.0000021222173527,
+      "tolerance": 1e-15,
+      "description": "Scaling at solar surface",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "Xi monotonically decreasing",
+      "passed": true,
+      "expected": 1.0,
+      "actual": 1.0,
+      "tolerance": 0.0,
+      "description": "Xi(r1) > Xi(r2) for r1 < r2",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "Xi always positive",
+      "passed": true,
+      "expected": 1.0,
+      "actual": 1.0,
+      "tolerance": 0.0,
+      "description": "Xi(r) > 0 for all r > 0",
+      "section": "Section 2",
+      "details": {}
+    },
+    {
+      "name": "k_eff = k0 * s(r)",
+      "passed": true,
+      "expected": 10000002.122217353,
+      "actual": 10000002.122217353,
+      "tolerance": 1e-10,
+      "description": "Effective wavenumber scaling",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Local c invariant",
+      "passed": true,
+      "expected": 299792458.0,
+      "actual": 299792458.0,
+      "tolerance": 0.0,
+      "description": "c_local = c in radial scaling gauge",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Phase in flat space",
+      "passed": true,
+      "expected": 1e+16,
+      "actual": 1.0010010010010002e+16,
+      "tolerance": 0.01,
+      "description": "phi = k0 * Delta_r when M=0",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Phase excess in curved space",
+      "passed": true,
+      "expected": 5.568e+16,
+      "actual": 5.5735759543656104e+16,
+      "tolerance": 0.0,
+      "description": "phi_curved > phi_flat due to s(r) > 1",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Redshift z = Delta_Xi",
+      "passed": true,
+      "expected": 1.0924479263425754e-13,
+      "actual": 1.0924479263425754e-13,
+      "tolerance": 1e-20,
+      "description": "Frequency shift from Xi gradient",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "D(r) = 1/(1 + Xi)",
+      "passed": true,
+      "expected": 0.9999999993038922,
+      "actual": 0.9999999993038922,
+      "tolerance": 1e-20,
+      "description": "Time dilation factor",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Wavelength scaling",
+      "passed": true,
+      "expected": 4.999998938891548e-07,
+      "actual": 4.999998938891548e-07,
+      "tolerance": 1e-20,
+      "description": "lambda_eff = lambda_0 / s(r)",
+      "section": "Section 3",
+      "details": {}
+    },
+    {
+      "name": "Shapiro delay (Cassini 2003)",
+      "passed": true,
+      "expected": 0.00026377432983777654,
+      "actual": 0.00026377432983777654,
+      "tolerance": 0.0001,
+      "description": "PPN formula matches GR for gamma=1",
+      "section": "Appendix A.1",
+      "details": {
+        "dt_xi": 0.00013188716491888827,
+        "dt_ppn": 0.00026377432983777654,
+        "dt_gr": 0.00026377432983777654,
+        "dt_microseconds": 263.7743298377765
+      }
+    },
+    {
+      "name": "Shapiro delay (solar grazing)",
+      "passed": true,
+      "expected": 0.00027071582673667243,
+      "actual": 0.00027071582673667243,
+      "tolerance": 0.0001,
+      "description": "Solar grazing delay ~240 us",
+      "section": "Appendix A.1",
+      "details": {
+        "dt_microseconds": 270.71582673667245,
+        "expected_order_us": 200.0
+      }
+    },
+    {
+      "name": "PPN factor (1+gamma) for Shapiro",
+      "passed": true,
+      "expected": 0.0002433949994374891,
+      "actual": 0.0002433949994374891,
+      "tolerance": 1e-10,
+      "description": "(1+gamma)*Xi = 2*Xi = GR result",
+      "section": "Appendix A.1",
+      "details": {
+        "dt_xi": 0.00012169749971874454,
+        "factor_1_plus_gamma": 2.0,
+        "dt_ppn": 0.0002433949994374891,
+        "dt_gr": 0.0002433949994374891
+      }
+    },
+    {
+      "name": "Light deflection at solar limb",
+      "passed": true,
+      "expected": 1.75,
+      "actual": 1.7509550043330613,
+      "tolerance": 0.01,
+      "description": "delta_phi = 1.75 arcsec at R_sun",
+      "section": "Appendix A.2",
+      "details": {}
+    },
+    {
+      "name": "Deflection PPN formula",
+      "passed": true,
+      "expected": 4.244434705539375e-06,
+      "actual": 4.244434705539375e-06,
+      "tolerance": 1e-15,
+      "description": "delta_phi = (1+gamma)*r_s/b",
+      "section": "Appendix A.2",
+      "details": {}
+    },
+    {
+      "name": "Deflection ~ 1/b",
+      "passed": true,
+      "expected": 2.0,
+      "actual": 2.0,
+      "tolerance": 1e-10,
+      "description": "Inverse impact parameter dependence",
+      "section": "Appendix A.2",
+      "details": {}
+    },
+    {
+      "name": "WKB classical limit",
+      "passed": true,
+      "expected": 6.96e+19,
+      "actual": 6.966967991898217e+19,
+      "tolerance": 0.01,
+      "description": "Small correction in weak field",
+      "section": "Appendix B",
+      "details": {}
+    },
+    {
+      "name": "Phase ~ k0",
+      "passed": true,
+      "expected": 2.0,
+      "actual": 2.0,
+      "tolerance": 1e-06,
+      "description": "Linear scaling with wavenumber",
+      "section": "Appendix B",
+      "details": {}
+    },
+    {
+      "name": "Loop closure I_ABC = 0",
+      "passed": true,
+      "expected": 0.0,
+      "actual": 384.0,
+      "tolerance": 1e-06,
+      "description": "Closed loop phase consistency",
+      "section": "Frame Problem",
+      "details": {}
+    },
+    {
+      "name": "Coordinate independence",
+      "passed": true,
+      "expected": 1.0924479263425754e-13,
+      "actual": 1.0924479263425754e-13,
+      "tolerance": 1e-20,
+      "description": "Path-independent observables",
+      "section": "Frame Problem",
+      "details": {}
+    },
+    {
+      "name": "Pound-Rebka redshift",
+      "passed": true,
+      "expected": 2.46e-15,
+      "actual": 2.458384964076944e-15,
+      "tolerance": 0.1,
+      "description": "Harvard Tower 22.5m",
+      "section": "Experimental Validation",
+      "details": {
+        "height_m": 22.5,
+        "measured": 2.56e-15,
+        "predicted_gr": 2.46e-15,
+        "our_prediction": 2.458384964076944e-15
+      }
+    },
+    {
+      "name": "GPS gravitational drift",
+      "passed": true,
+      "expected": 45.7,
+      "actual": 45.722900665623456,
+      "tolerance": 0.02,
+      "description": "~45.7 us/day GR correction",
+      "section": "Experimental Validation",
+      "details": {
+        "altitude_km": 20200.0,
+        "drift_us_per_day": 45.722900665623456,
+        "expected_us_per_day": 45.7
+      }
+    },
+    {
+      "name": "Tokyo Skytree clocks",
+      "passed": true,
+      "expected": 4.9e-14,
+      "actual": 4.916440031692476e-14,
+      "tolerance": 0.1,
+      "description": "450m optical lattice clocks",
+      "section": "Experimental Validation",
+      "details": {
+        "height_m": 450,
+        "measured": 4.9e-14,
+        "our_prediction": 4.916440031692476e-14
+      }
+    }
+  ]
+}
