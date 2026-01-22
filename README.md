@@ -2,7 +2,7 @@
 
 ## Radial Scaling Gauge Validation Suite
 
-> ### 🚀 [**Try it Online! → Launch Gradio Demo**](https://colab.research.google.com/github/error-wtf/ssz-lensing/blob/main/SSZ_Lensing_Colab.ipynb)
+> ### 🚀 [**Try it Online! → Launch Gradio Demo**](https://colab.research.google.com/github/error-wtf/ssz-lensing/blob/master/SSZ_Lensing_Colab.ipynb)
 > 
 > Run the full lensing analysis in your browser - no installation needed!
 
@@ -12,7 +12,7 @@
 [![Pass Rate](https://img.shields.io/badge/pass%20rate-100%25-brightgreen)](https://github.com/error-wtf/ssz-lensing)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-ACSL%201.4-orange)](LICENSE.md)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/error-wtf/ssz-lensing/blob/main/SSZ_Lensing_Colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/error-wtf/ssz-lensing/blob/master/SSZ_Lensing_Colab.ipynb)
 
 **Paper:** *Radial Scaling Gauge for Maxwell Fields*
 
