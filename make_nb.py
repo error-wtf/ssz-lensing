@@ -3,12 +3,12 @@ import json
 code = '''#@title RSG Lensing Suite - Clone & Run (Full Version)
 # Clone the repository and install dependencies
 !rm -rf ssz-lensing 2>/dev/null; git clone --depth 1 https://github.com/error-wtf/ssz-lensing.git
-!pip install -q gradio numpy matplotlib scipy
+!pip install -q gradio numpy matplotlib scipy plotly
 
 import sys
 sys.path.insert(0, 'ssz-lensing/src')
 
-import gradio as gr, numpy as np, matplotlib.pyplot as plt
+import gradio as gr, numpy as np, matplotlib.pyplot as plt, plotly.graph_objects as go
 from scipy.integrate import quad as iq
 
 A=np.pi/(180*3600); G,c,Ms,Mpc=6.674e-11,299792458,1.989e30,3.086e22
@@ -167,43 +167,27 @@ def t5(zL,zS,tE):
 
 def t6(txt,u,zL,zS,tE):
     pos=parse(txt,u); DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    n=len(pos); alpha=tE*A; cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    fig=plt.figure(figsize=(14,6))
-    # LEFT: 3D rotatable geodesics
-    ax1=fig.add_subplot(121,projection='3d'); ax1.set_facecolor('#0a0a1a')
+    n=len(pos); cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
     zS_n,zL_n,zO_n=0,0.35,1; rng=0.18
-    ax1.scatter([0],[0],[zS_n],s=200,c='yellow',edgecolors='orange',label='Quelle')
-    ax1.scatter([0],[0],[zL_n],s=150,c='red',marker='s',label='Linse')
-    ax1.scatter([0],[0],[zO_n],s=150,c='#5dade2',edgecolors='white',label='Beobachter')
+    fig=go.Figure()
+    # Source
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle'))
+    # Lens
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zL_n],mode='markers',marker=dict(size=12,color='red',symbol='square'),name='Linse'))
+    # Observer
+    fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zO_n],mode='markers',marker=dict(size=12,color='#5dade2'),name='Beobachter'))
+    # Einstein Ring
     th=np.linspace(0,2*np.pi,50)
-    ax1.plot(rng*np.cos(th),rng*np.sin(th),[zO_n]*50,'g--',alpha=0.5,lw=2,label='Einstein Ring')
+    fig.add_trace(go.Scatter3d(x=rng*np.cos(th),y=rng*np.sin(th),z=[zO_n]*50,mode='lines',line=dict(color='green',dash='dash',width=3),name='Einstein Ring'))
+    # Geodesics
     angs=np.arctan2(pos[:,1],pos[:,0]) if n>0 else np.array([0,np.pi/2,np.pi,3*np.pi/2])
     rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if n>0 and tE>0 else np.ones(4)
     for i in range(min(n,4)):
         phi=angs[i]; r_s=min(rads[i],1.3)*rng
         xi,yi=r_s*np.cos(phi),r_s*np.sin(phi); bd=0.04
-        ax1.plot([0,bd*np.cos(phi+np.pi),xi],[0,bd*np.sin(phi+np.pi),yi],[zS_n,zL_n,zO_n],c=cols[i],lw=2)
-        ax1.scatter([xi],[yi],[zO_n],s=100,c=cols[i],edgecolors='white')
-        ax1.text(xi*1.3,yi*1.3,zO_n,f'{i+1}',fontsize=9,color=cols[i],weight='bold')
-    ax1.set_xlim(-.25,.25); ax1.set_ylim(-.25,.25); ax1.set_zlim(-.05,1.05)
-    ax1.set_xlabel('X'); ax1.set_ylabel('Y'); ax1.set_zlabel('z')
-    ax1.set_title('3D Geodäten (rotierbar)'); ax1.legend(loc='upper left',fontsize=7)
-    # RIGHT: Observer sky with 4 images
-    ax2=fig.add_subplot(122); th=np.linspace(0,2*np.pi,100)
-    ax2.plot(tE*np.cos(th),tE*np.sin(th),'g--',lw=2,alpha=0.7,label=f'θ_E={tE:.3f}"')
-    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Linse')
-    p=pos/A
-    for i in range(min(n,4)):
-        ax2.scatter([p[i,0]],[p[i,1]],s=120,c=cols[i],edgecolors='k')
-        ax2.annotate(f'{i+1}',(p[i,0],p[i,1]),xytext=(5,5),textcoords='offset points',
-                     fontsize=9,weight='bold',color=cols[i])
-    lim=max(tE*1.5,np.max(np.abs(p))*1.2) if n>0 else tE*2
-    ax2.set_xlim(-lim,lim); ax2.set_ylim(-lim,lim)
-    ax2.set_aspect('equal'); ax2.grid(alpha=0.3)
-    ax2.set_xlabel('θ_x [arcsec]'); ax2.set_ylabel('θ_y [arcsec]')
-    ax2.set_title('Beobachter-Himmel: 4 Bilder auf Ring'); ax2.legend(fontsize=8)
-    plt.tight_layout()
-    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** 3D rotierbar\\n**Rechts:** Bilder auf Ring-Hilfslinie"
+        fig.add_trace(go.Scatter3d(x=[0,bd*np.cos(phi+np.pi),xi],y=[0,bd*np.sin(phi+np.pi),yi],z=[zS_n,zL_n,zO_n],mode='lines+markers',line=dict(color=cols[i],width=4),marker=dict(size=6,color=cols[i]),name=f'Bild {i+1}'))
+    fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z',bgcolor='#0a0a1a',xaxis=dict(range=[-.25,.25]),yaxis=dict(range=[-.25,.25]),zaxis=dict(range=[-.05,1.05])),title='3D Geodäten (mit Maus rotierbar)',margin=dict(l=0,r=0,t=40,b=0),height=500)
+    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Mit Maus rotierbar!**"
     return out, fig
 
 def t7(zL,zS,tE):
