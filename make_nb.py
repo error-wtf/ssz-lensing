@@ -203,7 +203,7 @@ def t6(txt,u,zL,zS,tE):
     ax2.set_xlabel('θ_x [arcsec]'); ax2.set_ylabel('θ_y [arcsec]')
     ax2.set_title('Beobachter-Himmel: 4 Bilder auf Ring'); ax2.legend(fontsize=8)
     plt.tight_layout()
-    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f}\" |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** 3D rotierbar\\n**Rechts:** Bilder auf Ring-Hilfslinie"
+    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** 3D rotierbar\\n**Rechts:** Bilder auf Ring-Hilfslinie"
     return out, fig
 
 def t7(zL,zS,tE):
