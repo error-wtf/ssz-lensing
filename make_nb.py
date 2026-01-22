@@ -84,14 +84,17 @@ def t5(zL,zS,tE):
 
 def t6(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); RE=tE*A*DL
-    fig=plt.figure(figsize=(7,5)); ax=fig.add_subplot(111,projection='3d')
-    ax.scatter([0],[0],[0],s=200,c='yellow',label='Obs')
-    ax.scatter([0],[0],[DL/Mpc],s=150,c='red',marker='s',label='Lens')
+    fig=plt.figure(figsize=(7,6)); ax=fig.add_subplot(111,projection='3d')
+    # Observer at top, Source at bottom (flipped z-axis)
+    ax.scatter([0],[0],[DS/Mpc],s=200,c='yellow',label='Observer')
+    ax.scatter([0],[0],[(DS-DL)/Mpc],s=150,c='red',marker='s',label='Lens')
     t=np.linspace(0,2*np.pi,50)
-    ax.plot(RE/Mpc*np.cos(t),RE/Mpc*np.sin(t),[DL/Mpc]*50,'g-',lw=2)
-    ax.scatter([0],[0],[DS/Mpc],s=150,c='blue',marker='*',label='Source')
-    ax.legend(); ax.set_xlabel('X'); ax.set_ylabel('Y'); ax.set_zlabel('D (Mpc)')
-    return f"R_E={RE/1e3:.1f} kpc", fig
+    ax.plot(RE/Mpc*np.cos(t),RE/Mpc*np.sin(t),[(DS-DL)/Mpc]*50,'g-',lw=2,label='Einstein Ring')
+    ax.scatter([0],[0],[0],s=150,c='blue',marker='*',label='Source')
+    ax.set_zlim(0, DS/Mpc*1.1)
+    ax.legend(); ax.set_xlabel('X (Mpc)'); ax.set_ylabel('Y (Mpc)'); ax.set_zlabel('Distance from Source')
+    ax.set_title('Observer (top) → Lens → Source (bottom)')
+    return f"R_E={RE/1e3:.1f} kpc\\nD_L={DL/Mpc:.0f} Mpc", fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
     gr.Markdown('# RSG Lensing Suite')
