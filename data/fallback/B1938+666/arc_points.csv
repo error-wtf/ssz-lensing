@@ -1,0 +1,11 @@
+point_id,x,y,unit,feature_id,sx,sy,ref
+P01,0.475,0.155,arcsec,ring,0.005,0.005,King1998
+P02,0.295,0.390,arcsec,ring,0.005,0.005,King1998
+P03,0.000,0.500,arcsec,ring,0.005,0.005,King1998
+P04,-0.295,0.390,arcsec,ring,0.005,0.005,King1998
+P05,-0.475,0.155,arcsec,ring,0.005,0.005,King1998
+P06,-0.475,-0.155,arcsec,ring,0.005,0.005,King1998
+P07,-0.295,-0.390,arcsec,ring,0.005,0.005,King1998
+P08,0.000,-0.500,arcsec,ring,0.005,0.005,King1998
+P09,0.295,-0.390,arcsec,ring,0.005,0.005,King1998
+P10,0.475,-0.155,arcsec,ring,0.005,0.005,King1998

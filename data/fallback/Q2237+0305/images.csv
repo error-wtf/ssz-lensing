@@ -1,0 +1,5 @@
+image_id,x,y,unit,sx,sy,band,epoch,ref
+A,0.740,0.565,arcsec,0.003,0.003,I,1990,CASTLES
+B,-0.635,0.470,arcsec,0.003,0.003,I,1990,CASTLES
+C,-0.480,-0.755,arcsec,0.003,0.003,I,1990,CASTLES
+D,0.870,-0.195,arcsec,0.003,0.003,I,1990,CASTLES

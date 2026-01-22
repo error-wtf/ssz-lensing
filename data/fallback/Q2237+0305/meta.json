@@ -1,0 +1,48 @@
+{
+  "system_name": "Q2237+0305",
+  "common_name": "Einstein Cross",
+  "mode": "QUAD",
+  "n_images": 4,
+  "z_lens": 0.0394,
+  "z_source": 1.695,
+  "distance_mode_default": "redshift",
+  "cosmology_default": "Planck18",
+  "theta_E_literature_arcsec": 0.89,
+  "theta_E_literature_source": "CASTLES",
+  "lens_type": "spiral_bulge",
+  "source_type": "quasar",
+  "discovery_year": 1985,
+  "notes": "Classic gravitational lens; quasar behind nearby spiral galaxy bulge",
+  "references": [
+    {
+      "key": "Huchra1985",
+      "title": "2237+0305: A new and unusual gravitational lens",
+      "authors": "Huchra, J. et al.",
+      "journal": "AJ",
+      "volume": 90,
+      "pages": "691-696",
+      "year": 1985,
+      "bibcode": "1985AJ.....90..691H"
+    },
+    {
+      "key": "CASTLES",
+      "title": "CASTLES Survey",
+      "url": "https://lweb.cfa.harvard.edu/castles/",
+      "notes": "Image positions and astrometry"
+    },
+    {
+      "key": "COSMOGRAIL2020",
+      "title": "COSMOGRAIL XIX: Time delays in 18 strongly lensed quasars",
+      "journal": "A&A",
+      "volume": 640,
+      "pages": "A105",
+      "year": 2020,
+      "doi": "10.1051/0004-6361/202037740"
+    }
+  ],
+  "data_quality": {
+    "position_accuracy_arcsec": 0.003,
+    "coordinate_system": "relative_to_lens_center",
+    "notes": "HST/FOC astrometry"
+  }
+}

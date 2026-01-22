@@ -1,0 +1,43 @@
+{
+  "system_name": "B1938+666",
+  "common_name": "Einstein Ring",
+  "mode": "RING",
+  "n_arc_points": 10,
+  "z_lens": 0.881,
+  "z_source": 2.059,
+  "distance_mode_default": "redshift",
+  "cosmology_default": "Planck18",
+  "theta_E_literature_arcsec": 0.5,
+  "theta_E_literature_source": "King1998",
+  "lens_type": "elliptical",
+  "source_type": "galaxy",
+  "discovery_year": 1998,
+  "notes": "Classic complete Einstein ring; JVAS radio survey discovery",
+  "references": [
+    {
+      "key": "King1998",
+      "title": "A complete infrared Einstein ring in the gravitational lens system B1938+666",
+      "authors": "King, L.J. et al.",
+      "journal": "MNRAS",
+      "volume": 295,
+      "pages": "L41-L44",
+      "year": 1998,
+      "bibcode": "1998MNRAS.295L..41K"
+    },
+    {
+      "key": "Lagattuta2012",
+      "title": "Adaptive optics imaging of the gravitational lens B1938+666",
+      "authors": "Lagattuta, D.J. et al.",
+      "journal": "MNRAS",
+      "volume": 424,
+      "pages": "2800-2810",
+      "year": 2012,
+      "doi": "10.1111/j.1365-2966.2012.21414.x"
+    }
+  ],
+  "data_quality": {
+    "position_accuracy_arcsec": 0.005,
+    "coordinate_system": "relative_to_lens_center",
+    "notes": "Arc points sampled from ring structure"
+  }
+}

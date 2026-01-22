@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "description": "Fallback datasets for ssz-lensing pipeline. Real astronomical data, never NaN.",
+  "last_updated": "2026-01-22",
+  "datasets": [
+    {
+      "id": "Q2237+0305_quad",
+      "name": "Q2237+0305 (Einstein Cross)",
+      "type": "quad_points",
+      "mode": "QUAD",
+      "source": "CASTLES/COSMOGRAIL/literature",
+      "license_note": "Coordinates compiled from literature; cite original sources",
+      "z_lens": 0.0394,
+      "z_source": 1.695,
+      "files": {
+        "images_csv": "Q2237+0305/images.csv",
+        "meta_json": "Q2237+0305/meta.json"
+      },
+      "references": [
+        "Huchra et al. 1985, AJ 90, 691 (discovery)",
+        "CASTLES Survey: https://lweb.cfa.harvard.edu/castles/",
+        "COSMOGRAIL XIX: A&A 640, A105 (2020)"
+      ]
+    },
+    {
+      "id": "B1938+666_ring",
+      "name": "B1938+666 (Einstein Ring)",
+      "type": "arc_points",
+      "mode": "RING",
+      "source": "literature/JVAS",
+      "license_note": "Coordinates compiled from literature; cite original sources",
+      "z_lens": 0.881,
+      "z_source": 2.059,
+      "files": {
+        "arc_points_csv": "B1938+666/arc_points.csv",
+        "meta_json": "B1938+666/meta.json"
+      },
+      "references": [
+        "King et al. 1998, MNRAS 295, L41 (discovery)",
+        "Lagattuta et al. 2012, MNRAS 424, 2800"
+      ]
+    }
+  ]
+}
