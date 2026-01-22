@@ -168,48 +168,57 @@ def t5(zL,zS,tE):
 def t6(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     alpha=tE*A  # deflection angle in radians
-    fig=plt.figure(figsize=(14,6))
-    # LEFT: 3D Geodesics (physical ray paths)
-    ax1=fig.add_subplot(121,projection='3d')
-    # Positions: Observer at z=0, Lens at z=DL, Source at z=DS
-    zO,zL_pos,zS_pos=0,DL/Mpc,DS/Mpc
-    ax1.scatter([0],[0],[zO],s=200,c='yellow',edgecolors='orange',label='Observer',zorder=10)
-    ax1.scatter([0],[0],[zL_pos],s=150,c='red',marker='s',label='Lens',zorder=10)
-    ax1.scatter([0],[0],[zS_pos],s=150,c='blue',marker='*',label='Source',zorder=10)
-    # Draw geodesics: light bends AT the lens plane, not a ring in space
-    nrays=8
-    for i in range(nrays):
-        phi=2*np.pi*i/nrays
-        # Impact parameter at lens = theta_E * D_L (in Mpc for plotting scale)
-        b=tE*1e-3  # scale for visibility (arcsec to plotting units)
-        xL,yL=b*np.cos(phi),b*np.sin(phi)
-        # Ray from observer to lens plane (incoming)
-        ax1.plot([0,xL],[0,yL],[zO,zL_pos],'c-',alpha=0.7,lw=1.5)
-        # Ray from lens to source (deflected toward optical axis)
-        ax1.plot([xL,0],[yL,0],[zL_pos,zS_pos],'c-',alpha=0.7,lw=1.5)
-    # Optical axis
-    ax1.plot([0,0],[0,0],[zO,zS_pos],'k--',alpha=0.3,lw=1,label='Optical Axis')
-    # Lens plane indicator (NOT a ring!)
-    th=np.linspace(0,2*np.pi,30)
-    ax1.plot(tE*1e-3*np.cos(th),tE*1e-3*np.sin(th),[zL_pos]*30,'r:',alpha=0.5,lw=1)
-    ax1.set_xlabel('X (scaled)'); ax1.set_ylabel('Y (scaled)'); ax1.set_zlabel('Distance [Mpc]')
-    ax1.set_title('Geodesics: Light bends at Lens Plane')
-    ax1.legend(loc='upper left',fontsize=8)
-    # RIGHT: Observer Sky (where the ring ACTUALLY exists)
-    ax2=fig.add_subplot(122)
+    fig,axes=plt.subplots(1,2,figsize=(14,5))
+    # LEFT: Classic lensing diagram (Source -> Lens -> Observer)
+    ax1=axes[0]; ax1.set_facecolor('#1a1a2e')
+    # Positions along optical axis (x): Source=0, Lens=DL, Observer=DS
+    xS,xL,xO=0,DL/Mpc,DS/Mpc; scale=xO/10
+    # True source position (on axis)
+    ax1.scatter([xS],[0],s=200,c='yellow',edgecolors='orange',zorder=10,label='Wahre Quelle')
+    # Lens (massive object)
+    circle=plt.Circle((xL,0),scale*0.8,color='orange',alpha=0.8,zorder=5)
+    ax1.add_patch(circle)
+    ax1.annotate('Gravitationsfeld',xy=(xL,0),fontsize=9,ha='center',va='center',color='white',weight='bold')
+    # Gravitational field ellipse
+    from matplotlib.patches import Ellipse
+    field=Ellipse((xL,0),scale*4,scale*3,alpha=0.2,color='cyan',zorder=2)
+    ax1.add_patch(field)
+    # Observer (focal point)
+    ax1.scatter([xO],[0],s=150,c='#5dade2',edgecolors='white',zorder=10,label='Brennpunkt (Observer)')
+    # Geodesics bending around lens
+    deflect=scale*1.5  # visual deflection for clarity
+    # Upper ray: Source -> bent around lens -> Observer
+    ax1.annotate('',xy=(xL,deflect*0.8),xytext=(xS,deflect*1.5),
+                 arrowprops=dict(arrowstyle='-',color='white',lw=1.5,ls='--'))
+    ax1.annotate('',xy=(xO,0),xytext=(xL,deflect*0.8),
+                 arrowprops=dict(arrowstyle='->',color='white',lw=1.5))
+    # Lower ray
+    ax1.annotate('',xy=(xL,-deflect*0.8),xytext=(xS,-deflect*1.5),
+                 arrowprops=dict(arrowstyle='-',color='white',lw=1.5,ls='--'))
+    ax1.annotate('',xy=(xO,0),xytext=(xL,-deflect*0.8),
+                 arrowprops=dict(arrowstyle='->',color='white',lw=1.5))
+    # Apparent positions (Scheinbarer Ort)
+    ax1.scatter([xS],[deflect*1.5],s=120,c='yellow',alpha=0.5,zorder=8)
+    ax1.scatter([xS],[-deflect*1.5],s=120,c='yellow',alpha=0.5,zorder=8)
+    ax1.annotate('Scheinbarer Ort',xy=(xS-scale*0.5,deflect*1.8),fontsize=8,color='yellow',ha='center')
+    ax1.annotate('Scheinbarer Ort',xy=(xS-scale*0.5,-deflect*1.8),fontsize=8,color='yellow',ha='center')
+    ax1.annotate('elektromagnetische Wellen',xy=(xL/2,deflect*1.2),fontsize=7,color='lightgray',ha='center')
+    ax1.set_xlim(-scale*2,xO+scale); ax1.set_ylim(-scale*4,scale*4)
+    ax1.set_aspect('equal'); ax1.axis('off')
+    ax1.set_title('Gravitationslinsen-Effekt',fontsize=12,color='white',pad=10)
+    # RIGHT: Observer Sky (angular projection)
+    ax2=axes[1]
     th=np.linspace(0,2*np.pi,100)
     ax2.plot(tE*np.cos(th),tE*np.sin(th),'g-',lw=3,label=f'Einstein Ring (θ_E={tE:.3f}")')
-    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Lens (center)')
-    ax2.scatter([0],[0],s=50,c='blue',marker='*',alpha=0.5,label='Source (behind lens)')
+    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Linse (Zentrum)')
+    ax2.scatter([0],[0],s=50,c='yellow',marker='*',alpha=0.7,label='Quelle (dahinter)')
     ax2.set_xlim(-tE*2,tE*2); ax2.set_ylim(-tE*2,tE*2)
     ax2.set_aspect('equal'); ax2.grid(alpha=0.3)
     ax2.set_xlabel('θ_x [arcsec]'); ax2.set_ylabel('θ_y [arcsec]')
-    ax2.set_title('Observer Sky: Ring is ANGULAR projection')
+    ax2.set_title('Beobachter-Himmel: Ring als Winkelprojektion')
     ax2.legend(loc='upper right',fontsize=8)
-    ax2.annotate('Ring exists HERE\\n(in observer\\'s view)',xy=(tE*0.7,tE*0.7),fontsize=9,ha='center',
-                 bbox=dict(boxstyle='round',fc='lightyellow',alpha=0.8))
     plt.tight_layout()
-    out=f"## Geodesic Lensing\\n**Key insight:** The Einstein ring is NOT a physical object in space.\\nIt is a **projection on the observer\\'s sky** (right panel).\\n\\n| Param | Value |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| α (deflection) | {np.degrees(alpha)*3600:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Left:** Geodesics bend at lens plane\\n**Right:** Ring appears in angular coordinates"
+    out=f"## Gravitationslinsen-Geometrie\\n**Kernaussage:** Der Einsteinring ist KEIN physisches Objekt im Raum.\\nEr existiert nur als **Winkelprojektion am Himmel des Beobachters**.\\n\\n| Parameter | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| α (Ablenkung) | {np.degrees(alpha)*3600:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** Geodäten biegen sich um die Masse\\n**Rechts:** Ring erscheint in Winkelkoordinaten"
     return out, fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
