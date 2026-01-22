@@ -1,0 +1,15 @@
+{
+  "family": "m2",
+  "regime": "OVERDETERMINED",
+  "success": true,
+  "n_constraints": 8,
+  "n_params": 5,
+  "max_residual": 0.008115472592802098,
+  "params": {
+    "theta_E": 0.8481212698009238,
+    "c_2": 0.07590482241722789,
+    "s_2": 0.07591901469966794,
+    "beta_x": -8.835687074612634e-05,
+    "beta_y": -0.005212740105536873
+  }
+}

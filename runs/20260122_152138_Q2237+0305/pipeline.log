@@ -1,0 +1,16 @@
+[15:21:38] Starting pipeline
+[15:21:38] Stage 1: Loading data
+[15:21:38]   Loaded 4 images
+[15:21:38] Stage 2: Validating
+[15:21:38]   Constraints: 8
+[15:21:38] Stage 3: Creating 3D scene
+[15:21:38]   Scene: O(0,0,0) -> L(0,0,1) -> S(0.012,0.002,2)
+[15:21:38] Stage 4: Running Model Zoo
+[15:21:38]   Ran 4 models successfully
+[15:21:38] Stage 5: Analyzing results
+[15:21:38]   Best: m=2 + m=3
+[15:21:38]   Residual: 2.2204e-16
+[15:21:38] Stage 6: Saving artifacts
+[15:21:38] Stage 7: Generating visualizations
+[15:21:38]   Saved figures to runs\20260122_152138_Q2237+0305\figures
+[15:21:38] Stage 8: Saving scene

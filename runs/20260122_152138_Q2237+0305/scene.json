@@ -1,0 +1,38 @@
+{
+  "name": "Q2237+0305",
+  "observer": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "label": "Observer"
+  },
+  "lens": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 1.0,
+      "label": "Lens"
+    },
+    "einstein_radius": 1.0,
+    "position_angle": 0.0,
+    "ellipticity": 0.0,
+    "redshift": null
+  },
+  "sources": [
+    {
+      "position": {
+        "x": 0.02475,
+        "y": 0.004249999999999996,
+        "z": 2.0,
+        "label": "Source_0"
+      },
+      "source_id": 0,
+      "redshift": null
+    }
+  ],
+  "cosmology": {
+    "H0": 70.0,
+    "Omega_m": 0.3,
+    "Omega_Lambda": 0.7
+  }
+}

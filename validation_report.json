@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0
+  },
+  "tests": [
+    {
+      "name": "UT1_phase_identity",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.0,
+      "notes": ""
+    },
+    {
+      "name": "UT2_shear_identity",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.0,
+      "notes": ""
+    },
+    {
+      "name": "UT3_forward_equivalence",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 2.220446049250313e-16,
+      "notes": ""
+    },
+    {
+      "name": "ST1_minimal_recovery",
+      "passed": true,
+      "constraints": 8,
+      "params": 5,
+      "dof_margin": 3,
+      "condition": 0.0,
+      "residual": 0.09999999999999953,
+      "notes": "theta_E err=0.0177, true={'theta_E': 1.0, 'beta_x': np.float64(0.1), 'beta_y': np.float64(0.0), 'beta': 0.1, 'phi_beta': 0.0, 'a': 0.0, 'b': 0.15, 'phi_gamma': 0.0}"
+    },
+    {
+      "name": "ST2_multi_source",
+      "passed": true,
+      "constraints": 16,
+      "params": 7,
+      "dof_margin": 9,
+      "condition": 0.0,
+      "residual": 0.07999999999999996,
+      "notes": "constraints=16, params=7"
+    },
+    {
+      "name": "ST3_noise_scaling",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.0,
+      "notes": "residuals=['0.1000', '0.6667', '0.6724']"
+    },
+    {
+      "name": "CM1_alg_vs_scan",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.09999999999999953,
+      "notes": "phi_a=0.785, phi_b=0.000, res_a=0.1000, res_b=0.0500"
+    },
+    {
+      "name": "RB1_dof_forbidden",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.0,
+      "notes": "FORBIDDEN: 10 params > 8 constraints. Need more observables or fewer params."
+    },
+    {
+      "name": "RB2_degeneracy",
+      "passed": true,
+      "constraints": 0,
+      "params": 0,
+      "dof_margin": 0,
+      "condition": 0.0,
+      "residual": 0.0,
+      "notes": "['DEGENERACY: 18 scan points within 10% of minimum']"
+    }
+  ]
+}

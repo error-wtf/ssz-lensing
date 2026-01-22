@@ -1,0 +1,12 @@
+{
+  "family": "m2_shear_m3",
+  "regime": "FORBIDDEN",
+  "success": false,
+  "n_constraints": 8,
+  "n_params": 9,
+  "max_residual": Infinity,
+  "notes": [
+    "Need 1 more constraint(s)",
+    "Options: flux ratios, time delays, arc points, or multi-source"
+  ]
+}

@@ -1,0 +1,538 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-8.4.2, pluggy-1.5.0 -- C:\Users\linoc\Miniconda3\python.exe
+cachedir: .pytest_cache
+rootdir: E:\clone\ssz-lensing
+plugins: anyio-4.12.1
+collecting ... collected 114 items
+
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_determined_standard PASSED [  0%]
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_overdetermined PASSED [  1%]
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_underdetermined_high_mmax PASSED [  2%]
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_rescue_with_source PASSED [  3%]
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_ill_conditioned PASSED [  4%]
+tests/test_comprehensive_analysis.py::TestScenarioSuite::test_scenario_phase_degeneracy PASSED [  5%]
+tests/test_comprehensive_analysis.py::TestPathConsistency::test_path_a_b_consistency PASSED [  6%]
+tests/test_comprehensive_analysis.py::TestPathConsistency::test_regime_matches_dof PASSED [  7%]
+tests/test_dual_path.py::TestSharedForwardModel::test_reduced_deflection_basic PASSED [  7%]
+tests/test_dual_path.py::TestSharedForwardModel::test_lens_equation_zero_residual PASSED [  8%]
+tests/test_dual_path.py::TestPathA_Algebraic::test_algebraic_solver_basic PASSED [  9%]
+tests/test_dual_path.py::TestPathA_Algebraic::test_phase_is_output_not_input PASSED [ 10%]
+tests/test_dual_path.py::TestPathB_PhaseScan::test_scan_is_labeled PASSED [ 11%]
+tests/test_dual_path.py::TestPathB_PhaseScan::test_scan_finds_candidates PASSED [ 12%]
+tests/test_dual_path.py::TestCrossCheck::test_dual_path_runs_both PASSED [ 13%]
+tests/test_dual_path.py::TestCrossCheck::test_cross_check_reports_consistency PASSED [ 14%]
+tests/test_extended_model.py::test_profiles PASSED                       [ 14%]
+tests/test_extended_model.py::test_external_shear PASSED                 [ 15%]
+tests/test_extended_model.py::test_higher_multipoles PASSED              [ 16%]
+tests/test_extended_model.py::test_synthetic_recovery PASSED             [ 17%]
+tests/test_extended_model.py::test_model_with_shear PASSED               [ 18%]
+tests/test_extended_model.py::test_real_lens_data PASSED                 [ 19%]
+tests/test_extended_model.py::test_comparison PASSED                     [ 20%]
+tests/test_linear_model.py::test_dof_analysis PASSED                     [ 21%]
+tests/test_linear_model.py::test_synthetic_recovery PASSED               [ 21%]
+tests/test_linear_model.py::test_real_lens_data PASSED                   [ 22%]
+tests/test_linear_model.py::test_comparison_with_extended PASSED         [ 23%]
+tests/test_minimal_exact.py::TestLinearSolver::test_simple_2x2 PASSED    [ 24%]
+tests/test_minimal_exact.py::TestLinearSolver::test_identity PASSED      [ 25%]
+tests/test_minimal_exact.py::TestLinearSolver::test_singular_matrix PASSED [ 26%]
+tests/test_minimal_exact.py::TestLinearSolver::test_near_singular PASSED [ 27%]
+tests/test_minimal_exact.py::TestRootSolver::test_bisection_linear PASSED [ 28%]
+tests/test_minimal_exact.py::TestRootSolver::test_bisection_quadratic PASSED [ 28%]
+tests/test_minimal_exact.py::TestRootSolver::test_bisection_trig FAILED  [ 29%]
+tests/test_minimal_exact.py::TestRootSolver::test_find_all_roots FAILED  [ 30%]
+tests/test_minimal_exact.py::TestExactRecovery::test_standard_cross FAILED [ 31%]
+tests/test_minimal_exact.py::TestExactRecovery::test_symmetric_cross FAILED [ 32%]
+tests/test_minimal_exact.py::TestExactRecovery::test_asymmetric_cross FAILED [ 33%]
+tests/test_minimal_exact.py::TestExactRecovery::test_varying_theta_E FAILED [ 34%]
+tests/test_minimal_exact.py::TestMatrixRank::test_full_rank PASSED       [ 35%]
+tests/test_minimal_exact.py::TestMatrixRank::test_rank_deficient PASSED  [ 35%]
+tests/test_minimal_exact.py::TestMatrixRank::test_rectangular PASSED     [ 36%]
+tests/test_multi_source.py::TestDOFGatekeeper::test_overdetermined_allowed PASSED [ 37%]
+tests/test_multi_source.py::TestDOFGatekeeper::test_exactly_determined_allowed PASSED [ 38%]
+tests/test_multi_source.py::TestDOFGatekeeper::test_underdetermined_forbidden PASSED [ 39%]
+tests/test_multi_source.py::TestDOFGatekeeper::test_max_params_single_source PASSED [ 40%]
+tests/test_multi_source.py::TestDOFGatekeeper::test_max_params_two_sources PASSED [ 41%]
+tests/test_multi_source.py::TestMultiSourceParams::test_phase_derived_from_components PASSED [ 42%]
+tests/test_multi_source.py::TestMultiSourceParams::test_shear_phase_derived PASSED [ 42%]
+tests/test_multi_source.py::TestMultiSourceBuilder::test_unknowns_single_source_m2 PASSED [ 43%]
+tests/test_multi_source.py::TestMultiSourceBuilder::test_unknowns_two_sources_with_shear PASSED [ 44%]
+tests/test_multi_source.py::TestMultiSourceBuilder::test_dof_blocks_underdetermined PASSED [ 45%]
+tests/test_multi_source.py::TestMultiSourceRecovery::test_single_source_recovery PASSED [ 46%]
+tests/test_multi_source.py::TestMultiSourceRecovery::test_two_source_shared_lens PASSED [ 47%]
+tests/test_multi_source.py::TestMultiSourceRecovery::test_phase_is_output_not_input PASSED [ 48%]
+tests/test_multi_source.py::TestDOFAnalysis::test_analyze_single_source PASSED [ 49%]
+tests/test_multi_source.py::TestDOFAnalysis::test_analyze_forbidden_config PASSED [ 50%]
+tests/test_multi_source.py::TestDOFAnalysis::test_analyze_multi_source_enables_more PASSED [ 50%]
+tests/test_multipole_consistency.py::TestDoFCounting::test_minimal_model_4_images PASSED [ 51%]
+tests/test_multipole_consistency.py::TestDoFCounting::test_underdetermined PASSED [ 52%]
+tests/test_multipole_consistency.py::TestDoFCounting::test_multipole_m3 PASSED [ 53%]
+tests/test_multipole_consistency.py::TestDoFCounting::test_image_multiplicity_quad PASSED [ 54%]
+tests/test_multipole_consistency.py::TestMultipoleConsistency::test_m2_matches_minimal FAILED [ 55%]
+tests/test_multipole_consistency.py::TestMultipoleConsistency::test_multipole_residuals PASSED [ 56%]
+tests/test_multipole_consistency.py::TestMultipoleConsistency::test_phase_periodicity PASSED [ 57%]
+tests/test_multipole_consistency.py::TestNumericalStability::test_small_quadrupole PASSED [ 57%]
+tests/test_multipole_consistency.py::TestNumericalStability::test_large_offset PASSED [ 58%]
+tests/test_multipole_consistency.py::TestNumericalStability::test_matrix_conditioning PASSED [ 59%]
+tests/test_radial_scaling_gauge.py::test_scaling_factor_definition PASSED [ 60%]
+tests/test_radial_scaling_gauge.py::test_scaling_weak_field_limit PASSED [ 61%]
+tests/test_radial_scaling_gauge.py::test_time_dilation_relation PASSED   [ 62%]
+tests/test_radial_scaling_gauge.py::test_effective_wavenumber PASSED     [ 63%]
+tests/test_radial_scaling_gauge.py::test_local_light_speed_invariant PASSED [ 64%]
+tests/test_radial_scaling_gauge.py::test_shapiro_delay_cassini PASSED    [ 64%]
+tests/test_radial_scaling_gauge.py::test_shapiro_delay_solar_grazing PASSED [ 65%]
+tests/test_radial_scaling_gauge.py::test_shapiro_xi_vs_ppn_factor PASSED [ 66%]
+tests/test_radial_scaling_gauge.py::test_solar_limb_deflection PASSED    [ 67%]
+tests/test_radial_scaling_gauge.py::test_deflection_xi_vs_ppn_factor PASSED [ 68%]
+tests/test_radial_scaling_gauge.py::test_gaia_deflection_precision PASSED [ 69%]
+tests/test_radial_scaling_gauge.py::test_wkb_phase_scaling PASSED        [ 70%]
+tests/test_radial_scaling_gauge.py::test_interferometer_phase_difference PASSED [ 71%]
+tests/test_radial_scaling_gauge.py::test_frame_consistency_loop_closure PASSED [ 71%]
+tests/test_radial_scaling_gauge.py::test_coordinate_independence PASSED  [ 72%]
+tests/test_radial_scaling_gauge.py::test_pound_rebka_experiment PASSED   [ 73%]
+tests/test_radial_scaling_gauge.py::test_gps_time_drift PASSED           [ 74%]
+tests/test_radial_scaling_gauge.py::test_tokyo_skytree_clocks PASSED     [ 75%]
+tests/test_real_data.py::test_synthetic_exact PASSED                     [ 76%]
+tests/test_real_data.py::test_synthetic_random PASSED                    [ 77%]
+tests/test_real_data.py::test_real_lens ERROR                            [ 78%]
+tests/test_real_data.py::test_real_data PASSED                           [ 78%]
+tests/test_real_data.py::test_noise_sensitivity PASSED                   [ 79%]
+tests/test_regime_explorer.py::test_regime_determined PASSED             [ 80%]
+tests/test_regime_explorer.py::test_regime_overdetermined PASSED         [ 81%]
+tests/test_regime_explorer.py::test_regime_underdetermined PASSED        [ 82%]
+tests/test_regime_explorer.py::test_regime_ill_conditioned PASSED        [ 83%]
+tests/test_regime_explorer.py::test_underdetermined_multiple_solutions PASSED [ 84%]
+tests/test_regime_explorer.py::test_underdetermined_param_ranges PASSED  [ 85%]
+tests/test_regime_explorer.py::test_underdetermined_non_identifiable PASSED [ 85%]
+tests/test_regime_explorer.py::test_high_mmax_underdetermined PASSED     [ 86%]
+tests/test_regime_explorer.py::test_dof_rescue_multisource PASSED        [ 87%]
+tests/test_regime_explorer.py::test_recommendations_change PASSED        [ 88%]
+tests/test_validation_lab.py::test_UT1 PASSED                            [ 89%]
+tests/test_validation_lab.py::test_UT2 PASSED                            [ 90%]
+tests/test_validation_lab.py::test_UT3 PASSED                            [ 91%]
+tests/test_validation_lab.py::test_ST1 PASSED                            [ 92%]
+tests/test_validation_lab.py::test_ST2 PASSED                            [ 92%]
+tests/test_validation_lab.py::test_ST3 PASSED                            [ 93%]
+tests/test_validation_lab.py::test_CM1 PASSED                            [ 94%]
+tests/test_validation_lab.py::test_RB1 PASSED                            [ 95%]
+tests/test_validation_lab.py::test_RB2 PASSED                            [ 96%]
+tests/test_validation_module.py::test_image_validation PASSED            [ 97%]
+tests/test_validation_module.py::test_dof_analysis PASSED                [ 98%]
+tests/test_validation_module.py::test_result_interpretation PASSED       [ 99%]
+tests/test_validation_module.py::test_model_comparison PASSED            [100%]
+
+=================================== ERRORS ====================================
+______________________ ERROR at setup of test_real_lens _______________________
+file E:\clone\ssz-lensing\tests\test_real_data.py, line 414
+  def test_real_lens(name, data):
+E       fixture 'name' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+E:\clone\ssz-lensing\tests\test_real_data.py:414
+================================== FAILURES ===================================
+_____________________ TestRootSolver.test_bisection_trig ______________________
+tests\test_minimal_exact.py:81: in test_bisection_trig
+    assert abs(root - np.pi) < 1e-10
+E   assert 0.14159265358979312 < 1e-10
+E    +  where 0.14159265358979312 = abs((3.0 - 3.141592653589793))
+E    +    where 3.141592653589793 = np.pi
+_____________________ TestRootSolver.test_find_all_roots ______________________
+tests\test_minimal_exact.py:90: in test_find_all_roots
+    assert len(roots) >= 3  # At least pi, 2*pi, 3*pi
+    ^^^^^^^^^^^^^^^^^^^^^^
+E   assert 1 >= 3
+E    +  where 1 = len([np.float64(6.283185307178739)])
+____________________ TestExactRecovery.test_standard_cross ____________________
+tests\test_minimal_exact.py:114: in test_standard_cross
+    assert abs(recovered['theta_E'] - params['theta_E']) < 1e-8
+               ^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'NoneType' object is not subscriptable
+___________________ TestExactRecovery.test_symmetric_cross ____________________
+tests\test_minimal_exact.py:131: in test_symmetric_cross
+    assert abs(recovered['theta_E'] - params['theta_E']) < 1e-8
+E   assert np.float64(1.0000000000000044) < 1e-08
+E    +  where np.float64(1.0000000000000044) = abs((np.float64(-4.396258884314569e-15) - 1.0))
+___________________ TestExactRecovery.test_asymmetric_cross ___________________
+tests\test_minimal_exact.py:147: in test_asymmetric_cross
+    assert abs(recovered['theta_E'] - params['theta_E']) < 1e-6
+E   assert np.float64(0.9999999999999694) < 1e-06
+E    +  where np.float64(0.9999999999999694) = abs((np.float64(3.064209630395637e-14) - 1.0))
+___________________ TestExactRecovery.test_varying_theta_E ____________________
+tests\test_minimal_exact.py:158: in test_varying_theta_E
+    assert abs(recovered['theta_E'] - theta_E) < 1e-6 * theta_E
+               ^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'NoneType' object is not subscriptable
+______________ TestMultipoleConsistency.test_m2_matches_minimal _______________
+tests\test_multipole_consistency.py:89: in test_m2_matches_minimal
+    assert ok_mp
+E   assert False
+============================== warnings summary ===============================
+tests\test_radial_scaling_gauge.py:134
+  E:\clone\ssz-lensing\tests\test_radial_scaling_gauge.py:134: PytestCollectionWarning: cannot collect test class 'TestResult' because it has a __init__ constructor (from: tests/test_radial_scaling_gauge.py)
+    @dataclass
+
+tests\test_regime_explorer.py:32
+  E:\clone\ssz-lensing\tests\test_regime_explorer.py:32: PytestCollectionWarning: cannot collect test class 'TestResult' because it has a __init__ constructor (from: tests/test_regime_explorer.py)
+    @dataclass
+
+tests/test_extended_model.py::test_profiles
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_profiles returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_external_shear
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_external_shear returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_higher_multipoles
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_higher_multipoles returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_synthetic_recovery
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_synthetic_recovery returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_model_with_shear
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_model_with_shear returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_real_lens_data
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_real_lens_data returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_extended_model.py::test_comparison
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_extended_model.py::test_comparison returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_linear_model.py::test_dof_analysis
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_linear_model.py::test_dof_analysis returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_linear_model.py::test_synthetic_recovery
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_linear_model.py::test_synthetic_recovery returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_linear_model.py::test_real_lens_data
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_linear_model.py::test_real_lens_data returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_linear_model.py::test_comparison_with_extended
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_linear_model.py::test_comparison_with_extended returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_scaling_factor_definition
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_scaling_factor_definition returned <class 'list'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_scaling_weak_field_limit
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_scaling_weak_field_limit returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_time_dilation_relation
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_time_dilation_relation returned <class 'list'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_effective_wavenumber
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_effective_wavenumber returned <class 'list'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_local_light_speed_invariant
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_local_light_speed_invariant returned <class 'list'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_shapiro_delay_cassini
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_shapiro_delay_cassini returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_shapiro_delay_solar_grazing
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_shapiro_delay_solar_grazing returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_shapiro_xi_vs_ppn_factor
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_shapiro_xi_vs_ppn_factor returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_solar_limb_deflection
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_solar_limb_deflection returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_deflection_xi_vs_ppn_factor
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_deflection_xi_vs_ppn_factor returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_gaia_deflection_precision
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_gaia_deflection_precision returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_wkb_phase_scaling
+tests/test_radial_scaling_gauge.py::test_interferometer_phase_difference
+tests/test_radial_scaling_gauge.py::test_interferometer_phase_difference
+  E:\clone\ssz-lensing\tests\test_radial_scaling_gauge.py:256: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    return k * np.trapz(s_vals, dx=dr)
+
+tests/test_radial_scaling_gauge.py::test_wkb_phase_scaling
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_wkb_phase_scaling returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_interferometer_phase_difference
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_interferometer_phase_difference returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_frame_consistency_loop_closure
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_frame_consistency_loop_closure returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_coordinate_independence
+  E:\clone\ssz-lensing\tests\test_radial_scaling_gauge.py:783: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    rho = np.trapz(s_vals, r_vals)
+
+tests/test_radial_scaling_gauge.py::test_coordinate_independence
+  E:\clone\ssz-lensing\tests\test_radial_scaling_gauge.py:789: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    rho_2 = np.trapz(s_vals_2, r_vals_2)
+
+tests/test_radial_scaling_gauge.py::test_coordinate_independence
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_coordinate_independence returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_pound_rebka_experiment
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_pound_rebka_experiment returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_gps_time_drift
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_gps_time_drift returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_radial_scaling_gauge.py::test_tokyo_skytree_clocks
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_radial_scaling_gauge.py::test_tokyo_skytree_clocks returned <class 'test_radial_scaling_gauge.TestResult'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_real_data.py::test_synthetic_exact
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_real_data.py::test_synthetic_exact returned <class 'tuple'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_real_data.py::test_synthetic_random
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_real_data.py::test_synthetic_random returned <class 'tuple'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_real_data.py::test_real_data
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_real_data.py::test_real_data returned <class 'tuple'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_real_data.py::test_noise_sensitivity
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_real_data.py::test_noise_sensitivity returned <class 'tuple'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_regime_determined
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_regime_determined returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_regime_overdetermined
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_regime_overdetermined returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_regime_underdetermined
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_regime_underdetermined returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_regime_ill_conditioned
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_regime_ill_conditioned returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_underdetermined_multiple_solutions
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_underdetermined_multiple_solutions returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_underdetermined_param_ranges
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_underdetermined_param_ranges returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_underdetermined_non_identifiable
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_underdetermined_non_identifiable returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_high_mmax_underdetermined
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_high_mmax_underdetermined returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_dof_rescue_multisource
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_dof_rescue_multisource returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_regime_explorer.py::test_recommendations_change
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_regime_explorer.py::test_recommendations_change returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_UT1
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_UT1 returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_UT2
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_UT2 returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_UT3
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_UT3 returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_ST1
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_ST1 returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_ST2
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_ST2 returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_ST3
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_ST3 returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_CM1
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_CM1 returned <class 'numpy.bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_RB1
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_RB1 returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_lab.py::test_RB2
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_lab.py::test_RB2 returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_module.py::test_image_validation
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_module.py::test_image_validation returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_module.py::test_dof_analysis
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_module.py::test_dof_analysis returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_module.py::test_result_interpretation
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_module.py::test_result_interpretation returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_validation_module.py::test_model_comparison
+  C:\Users\linoc\Miniconda3\Lib\site-packages\_pytest\python.py:161: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_validation_module.py::test_model_comparison returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_minimal_exact.py::TestRootSolver::test_bisection_trig - ass...
+FAILED tests/test_minimal_exact.py::TestRootSolver::test_find_all_roots - ass...
+FAILED tests/test_minimal_exact.py::TestExactRecovery::test_standard_cross - ...
+FAILED tests/test_minimal_exact.py::TestExactRecovery::test_symmetric_cross
+FAILED tests/test_minimal_exact.py::TestExactRecovery::test_asymmetric_cross
+FAILED tests/test_minimal_exact.py::TestExactRecovery::test_varying_theta_E
+FAILED tests/test_multipole_consistency.py::TestMultipoleConsistency::test_m2_matches_minimal
+ERROR tests/test_real_data.py::test_real_lens
+============= 7 failed, 106 passed, 63 warnings, 1 error in 5.49s =============

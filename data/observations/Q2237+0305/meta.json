@@ -1,0 +1,10 @@
+{
+    "system_name": "Q2237+0305",
+    "common_name": "Einstein Cross",
+    "z_lens": 0.0394,
+    "z_source": 1.695,
+    "lens_type": "Spiral with bar",
+    "discovery_paper": "Huchra et al. 1985, AJ 90, 691",
+    "image_data_source": "CASTLES (CfA-Arizona Space Telescope LEns Survey)",
+    "notes": "Classic quad lens, bar structure makes m=2 insufficient"
+}
