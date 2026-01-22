@@ -168,33 +168,25 @@ def t5(zL,zS,tE):
 def t6(txt,u,zL,zS,tE):
     pos=parse(txt,u); DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     n=len(pos); cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    # Physical: b_E = D_L * theta_E (impact parameter at lens plane)
-    b_E=DL*tE*A  # in meters
-    b_E_kpc=b_E/(1e3*pc)  # in kpc for display
-    # Normalized coords: Source(z=0) -> Lens(z=zL_n) -> Observer(z=1)
-    zS_n,zL_n,zO_n=0,0.35,1
-    # Scale factor for visualization (normalized units)
-    scale=0.12  # visual scale
+    b_E=DL*tE*A; b_E_kpc=b_E/(1e3*pc)
+    zS_n,zL_n,zO_n=0,0.35,1; scale=0.12
     fig=go.Figure()
-    # Source
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zS_n],mode='markers',marker=dict(size=15,color='yellow'),name='Quelle'))
-    # Lens
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zL_n],mode='markers',marker=dict(size=14,color='red',symbol='square'),name='Linse'))
-    # Observer
     fig.add_trace(go.Scatter3d(x=[0],y=[0],z=[zO_n],mode='markers',marker=dict(size=12,color='#5dade2'),name='Beobachter'))
-    # Impact parameter circle at LENS PLANE (z = zL_n) - THIS IS b_E, NOT theta_E!
     th=np.linspace(0,2*np.pi,60)
-    fig.add_trace(go.Scatter3d(x=scale*np.cos(th),y=scale*np.sin(th),z=[zL_n]*60,mode='lines',line=dict(color='lime',width=4),name=f'Impact circle b_E'))
-    # Ray paths with crossing points at lens plane
-    angs=np.arctan2(pos[:,1],pos[:,0]) if n>0 else np.array([0,np.pi/2,np.pi,3*np.pi/2])
-    rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if n>0 and tE>0 else np.ones(4)
+    fig.add_trace(go.Scatter3d(x=scale*np.cos(th),y=scale*np.sin(th),z=[zL_n]*60,mode='lines',line=dict(color='lime',width=4),name='Impact circle b_E'))
+    # Default 4 rays if no data
+    if n==0:
+        angs=np.array([0,np.pi/2,np.pi,3*np.pi/2]); rads=np.ones(4); n_rays=4
+    else:
+        angs=np.arctan2(pos[:,1],pos[:,0]); rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if tE>0 else np.ones(n); n_rays=min(n,4)
     b_vals=[]
-    for i in range(min(n,4)):
-        phi=angs[i]; r_n=min(rads[i],1.2)*scale  # normalized impact param
-        bx,by=r_n*np.cos(phi),r_n*np.sin(phi)  # crossing point at lens plane
-        b_vals.append(np.hypot(bx,by)/scale)  # ratio to b_E
-        # Ray: Source -> lens crossing -> Observer
-        fig.add_trace(go.Scatter3d(x=[0,bx,0],y=[0,by,0],z=[zS_n,zL_n,zO_n],mode='lines+markers',line=dict(color=cols[i],width=4),marker=dict(size=[4,8,4],color=cols[i]),name=f'Ray {i+1}'))
+    for i in range(n_rays):
+        phi=angs[i]; r_n=min(float(rads[i]),1.2)*scale
+        bx,by=r_n*np.cos(phi),r_n*np.sin(phi)
+        b_vals.append(np.hypot(bx,by)/scale)
+        fig.add_trace(go.Scatter3d(x=[0,bx,0],y=[0,by,0],z=[zS_n,zL_n,zO_n],mode='lines+markers',line=dict(color=cols[i%4],width=4),marker=dict(size=[4,8,4],color=cols[i%4]),name=f'Ray {i+1}'))
     fig.update_layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='z',bgcolor='#0a0a1a',xaxis=dict(range=[-.18,.18]),yaxis=dict(range=[-.18,.18]),zaxis=dict(range=[-.05,1.05])),title='3D: Impact circle (b) at Lens Plane',margin=dict(l=0,r=0,t=40,b=0),height=550)
     # Output with b_i values
     out=f"## 3D Lens Geometry\\n\\n**Impact circle at lens plane** (NOT Einstein Ring!)\\n\\n"
