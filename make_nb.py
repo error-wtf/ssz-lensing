@@ -46,41 +46,48 @@ QUAD='''0.740, 0.565
 
 def t1(txt,u):
     pos=parse(txt,u); n=len(pos); r=np.hypot(pos[:,0],pos[:,1])
-    fig,ax=plt.subplots(figsize=(5,5)); p=pos/A
+    fig,ax=plt.subplots(figsize=(6,6)); p=pos/A
     ax.scatter(p[:,0],p[:,1],s=80,c='blue'); ax.set_aspect('equal'); ax.grid(alpha=.3)
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    ax.ticklabel_format(style='plain', useOffset=False)
     return f"Points: {n}, Mean R: {np.mean(r)/A:.4f} arcsec", fig
 
 def t2(txt,u):
     pos=parse(txt,u); m,conf=morph(pos); cx,cy,R,rms=ring_fit(pos)
-    fig,ax=plt.subplots(figsize=(5,5)); p=pos/A; t=np.linspace(0,2*np.pi,100)
+    fig,ax=plt.subplots(figsize=(6,6)); p=pos/A; t=np.linspace(0,2*np.pi,100)
     ax.scatter(p[:,0],p[:,1],s=80,c='blue')
     ax.plot(cx/A+R/A*np.cos(t),cy/A+R/A*np.sin(t),'g--',lw=2)
     ax.scatter([cx/A],[cy/A],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    return f"**{m}** ({conf:.0%})\\nR={R/A:.4f} arcsec", fig
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    return f"**{m}** ({conf:.0%})\nR={R/A:.4f} arcsec", fig
 
 def t3(txt,u):
     pos=parse(txt,u); cx,cy,R,rms=ring_fit(pos)
-    fig,ax=plt.subplots(figsize=(5,5)); p=pos/A; t=np.linspace(0,2*np.pi,100)
+    fig,ax=plt.subplots(figsize=(6,6)); p=pos/A; t=np.linspace(0,2*np.pi,100)
     ax.scatter(p[:,0],p[:,1],s=80,c='blue')
     ax.plot(cx/A+R/A*np.cos(t),cy/A+R/A*np.sin(t),'g-',lw=2)
     ax.scatter([cx/A],[cy/A],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    return f"R={R/A:.4f} arcsec\\nRMS={rms/A:.6f} arcsec", fig
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    return f"R={R/A:.4f} arcsec\nRMS={rms/A:.6f} arcsec", fig
 
 def t4(txt,u):
     pos=parse(txt,u); res=invert(pos)
     if not res: return 'Need 4 pts', None
     tE,rms=res
-    fig,ax=plt.subplots(figsize=(5,5)); p=pos/A; t=np.linspace(0,2*np.pi,100)
+    fig,ax=plt.subplots(figsize=(6,6)); p=pos/A; t=np.linspace(0,2*np.pi,100)
     ax.scatter(p[:,0],p[:,1],s=100,c='blue',zorder=5)
     ax.plot(tE/A*np.cos(t),tE/A*np.sin(t),'g--',lw=2)
     ax.scatter([0],[0],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    return f"theta_E={tE/A:.4f} arcsec\\nRMS={rms/A:.6f} arcsec", fig
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    ax.set_title(f'θ_E = {tE/A:.3f}"')
+    return f"theta_E={tE/A:.4f} arcsec\nRMS={rms/A:.6f} arcsec", fig
 
 def t5(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     fig,ax=plt.subplots(); ax.barh(['D_L','D_S','D_LS'],[DL/Mpc,DS/Mpc,DLS/Mpc])
     ax.set_xlabel('Mpc')
-    return f"D_L={DL/Mpc:.0f} Mpc\\nD_S={DS/Mpc:.0f} Mpc\\n**M={M:.2e} Msun**", fig
+    ax.set_ylabel('Distance (Mpc)')
+    return f"D_L={DL/Mpc:.0f} Mpc\nD_S={DS/Mpc:.0f} Mpc\n**M={M:.2e} Msun**", fig
 
 def t6(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); RE=tE*A*DL
