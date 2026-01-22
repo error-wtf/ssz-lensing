@@ -216,7 +216,7 @@ def t7_sky(txt,u,tE):
     for i in range(min(n,4)):
         px,py=p[i,0],p[i,1]; r_i=np.hypot(px,py)
         out+=f"| {i+1} | {px:.4f} | {py:.4f} | {r_i:.4f} |\\n"
-    out+=f"\\n| θ_E | {tE:.4f}\" |\\n\\n**Der grüne Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
+    out+=f"\\n| θ_E | {tE:.4f} arcsec |\\n\\n**Der gruene Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
     return out, fig
 
 def t8(zL,zS,tE):
