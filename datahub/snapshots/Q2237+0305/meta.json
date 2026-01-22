@@ -1,0 +1,50 @@
+{
+  "dataset_id": "Q2237+0305",
+  "common_name": "Einstein Cross",
+  "mode": "QUAD",
+  "n_images": 4,
+  "z_lens": 0.0394,
+  "z_source": 1.695,
+  "z_lens_source": "Huchra1985",
+  "z_source_source": "Huchra1985",
+  "theta_E_arcsec": 0.89,
+  "theta_E_source": "CASTLES_catalog",
+  "coordinate_system": "relative_to_lens_galaxy_center",
+  "position_unit": "arcsec",
+  "position_accuracy_arcsec": 0.003,
+  "position_accuracy_source": "Irwin1989_HST_FOC",
+  "lens_type": "spiral_bulge",
+  "source_type": "quasar",
+  "discovery_year": 1985,
+  "primary_references": [
+    {
+      "key": "Huchra1985",
+      "title": "2237+0305: A new and unusual gravitational lens",
+      "authors": "Huchra, J. et al.",
+      "journal": "AJ",
+      "volume": 90,
+      "pages": "691-696",
+      "year": 1985,
+      "bibcode": "1985AJ.....90..691H",
+      "provides": ["discovery", "z_lens", "z_source"]
+    },
+    {
+      "key": "Irwin1989",
+      "title": "Photometric variations in the Q2237+0305 system",
+      "authors": "Irwin, M.J. et al.",
+      "journal": "AJ",
+      "volume": 98,
+      "pages": "1989-1994",
+      "year": 1989,
+      "bibcode": "1989AJ.....98.1989I",
+      "provides": ["image_positions", "astrometry"]
+    }
+  ],
+  "data_quality": {
+    "all_required_fields_present": true,
+    "all_values_finite": true,
+    "no_null": true,
+    "no_nan": true,
+    "validated_date": "2026-01-22"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "dataset_id": "B1938+666",
+  "common_name": "Einstein Ring",
+  "mode": "RING",
+  "n_arc_points": 36,
+  "z_lens": 0.881,
+  "z_source": 2.059,
+  "z_lens_source": "Tonry_Kochanek_1999",
+  "z_source_source": "Tonry_Kochanek_1999",
+  "theta_E_arcsec": 0.5,
+  "theta_E_source": "King1998",
+  "coordinate_system": "relative_to_lens_galaxy_center",
+  "position_unit": "arcsec",
+  "arc_coverage_deg": 360,
+  "ring_completeness": "complete",
+  "lens_type": "elliptical",
+  "source_type": "galaxy",
+  "discovery_year": 1998,
+  "extraction_method": {
+    "type": "ring_sampling",
+    "radius_arcsec": 0.5,
+    "n_points": 36,
+    "angular_step_deg": 10,
+    "basis": "published_theta_E_and_ring_morphology"
+  },
+  "primary_references": [
+    {
+      "key": "King1998",
+      "title": "A complete infrared Einstein ring in B1938+666",
+      "authors": "King, L.J. et al.",
+      "journal": "MNRAS",
+      "volume": 295,
+      "pages": "L41-L44",
+      "year": 1998,
+      "bibcode": "1998MNRAS.295L..41K",
+      "provides": ["discovery", "theta_E", "ring_morphology"]
+    },
+    {
+      "key": "Lagattuta2012",
+      "title": "SHARP I: A high-resolution multiband view of B1938+666",
+      "authors": "Lagattuta, D.J. et al.",
+      "journal": "MNRAS",
+      "volume": 424,
+      "pages": "2800-2810",
+      "year": 2012,
+      "bibcode": "2012MNRAS.424.2800L",
+      "provides": ["high_res_imaging", "arc_structure"]
+    }
+  ],
+  "data_quality": {
+    "all_required_fields_present": true,
+    "all_values_finite": true,
+    "no_null": true,
+    "no_nan": true,
+    "validated_date": "2026-01-22"
+  }
+}

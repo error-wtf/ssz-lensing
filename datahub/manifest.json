@@ -1,0 +1,106 @@
+{
+  "schema_version": "2.0",
+  "description": "DataHub manifest: real-only fallback datasets with full provenance",
+  "last_updated": "2026-01-22",
+  "policy": {
+    "no_defaults": true,
+    "no_null": true,
+    "no_nan": true,
+    "real_sources_only": true,
+    "missing_field_policy": "reject_dataset"
+  },
+  "datasets": [
+    {
+      "id": "Q2237+0305",
+      "name": "Einstein Cross",
+      "type": "quad_points",
+      "mode": "QUAD",
+      "fetch_method": "table",
+      "status": "validated",
+      "required_fields": ["image_id", "x", "y", "unit", "z_lens", "z_source"],
+      "optional_fields": ["sx", "sy", "theta_E_arcsec"],
+      "sources": [
+        {
+          "type": "astrometry_table",
+          "reference": "Irwin et al. 1989, AJ 98, 1989",
+          "bibcode": "1989AJ.....98.1989I",
+          "url": "https://adsabs.harvard.edu/full/1989AJ.....98.1989I",
+          "table": "Table II",
+          "notes": "Original HST/FOC astrometry"
+        },
+        {
+          "type": "redshift",
+          "reference": "Huchra et al. 1985, AJ 90, 691",
+          "bibcode": "1985AJ.....90..691H",
+          "z_lens": 0.0394,
+          "z_source": 1.695
+        }
+      ],
+      "snapshot": {
+        "images_csv": "snapshots/Q2237+0305/images.csv",
+        "meta_json": "snapshots/Q2237+0305/meta.json",
+        "provenance_md": "snapshots/Q2237+0305/provenance.md"
+      },
+      "validation": {
+        "n_images": 4,
+        "all_finite": true,
+        "units_consistent": true,
+        "validated_date": "2026-01-22"
+      }
+    },
+    {
+      "id": "B1938+666",
+      "name": "Einstein Ring",
+      "type": "arc_points",
+      "mode": "RING",
+      "fetch_method": "fits_extraction",
+      "status": "validated",
+      "required_fields": ["point_id", "x", "y", "unit", "z_lens", "z_source"],
+      "optional_fields": ["feature_id", "theta_E_arcsec"],
+      "sources": [
+        {
+          "type": "fits_image",
+          "reference": "King et al. 1998, MNRAS 295, L41",
+          "bibcode": "1998MNRAS.295L..41K",
+          "notes": "HST NICMOS imaging"
+        },
+        {
+          "type": "high_res_imaging",
+          "reference": "Lagattuta et al. 2012, MNRAS 424, 2800",
+          "bibcode": "2012MNRAS.424.2800L",
+          "url": "https://ui.adsabs.harvard.edu/abs/2012MNRAS.424.2800L",
+          "notes": "Keck AO imaging, arc structure analysis"
+        },
+        {
+          "type": "redshift",
+          "reference": "Tonry & Kochanek 1999",
+          "z_lens": 0.881,
+          "z_source": 2.059
+        }
+      ],
+      "extraction_params": {
+        "method": "arc_sampling",
+        "n_points": 36,
+        "angular_coverage_deg": 360,
+        "radius_source": "literature_theta_E"
+      },
+      "snapshot": {
+        "arc_points_csv": "snapshots/B1938+666/arc_points.csv",
+        "meta_json": "snapshots/B1938+666/meta.json",
+        "provenance_md": "snapshots/B1938+666/provenance.md"
+      },
+      "validation": {
+        "n_points_min": 20,
+        "all_finite": true,
+        "units_consistent": true,
+        "validated_date": "2026-01-22"
+      }
+    }
+  ],
+  "fallback_rules": {
+    "QUAD": ["Q2237+0305"],
+    "RING": ["B1938+666"],
+    "ARC": ["B1938+666"],
+    "on_fetch_failure": "hard_fail_with_message"
+  }
+}

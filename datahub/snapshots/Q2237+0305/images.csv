@@ -1,0 +1,5 @@
+image_id,x,y,unit,sx,sy,source
+A,0.758,0.560,arcsec,0.003,0.003,Irwin1989_TableII
+B,-0.619,0.480,arcsec,0.003,0.003,Irwin1989_TableII
+C,-0.472,-0.761,arcsec,0.003,0.003,Irwin1989_TableII
+D,0.857,-0.196,arcsec,0.003,0.003,Irwin1989_TableII
