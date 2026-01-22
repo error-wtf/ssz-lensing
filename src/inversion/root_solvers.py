@@ -52,8 +52,8 @@ def bisection(
     if fa * fb > 0:
         return (a + b) / 2, False
     
-    # Ensure f(a) < 0
-    if fa > 0:
+    # Ensure a < b for consistent interval tracking
+    if a > b:
         a, b = b, a
         fa, fb = fb, fa
     
@@ -67,7 +67,8 @@ def bisection(
         if abs(fm) < tol or (b - a) / 2 < tol:
             return mid, True
         
-        if fm < 0:
+        # Replace endpoint with same sign as fm
+        if fa * fm > 0:
             a = mid
             fa = fm
         else:
