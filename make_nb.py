@@ -1,7 +1,12 @@
 import json
 
-code = """#@title RSG Lensing Suite - FULL Analysis (Run this cell)
+code = '''#@title RSG Lensing Suite - Clone & Run (Full Version)
+# Clone the repository and install dependencies
+!git clone --depth 1 https://github.com/error-wtf/ssz-lensing.git 2>/dev/null || echo "Repo already cloned"
 !pip install -q gradio numpy matplotlib scipy
+
+import sys
+sys.path.insert(0, 'ssz-lensing/src')
 
 import gradio as gr, numpy as np, matplotlib.pyplot as plt
 from scipy.integrate import quad as iq
@@ -10,9 +15,13 @@ A=np.pi/(180*3600); G,c,Ms,Mpc=6.674e-11,299792458,1.989e30,3.086e22
 
 def parse(t,u='arcsec'):
     f={'arcsec':A,'mas':A/1000,'rad':1}[u]
-    return np.array([[float(x) for x in l.replace(',',' ').split()[:2]] for l in t.strip().split('\\n') if l.strip() and not l.startswith('#')])*f
+    lines = [l.strip() for l in t.strip().split('\\n') if l.strip() and not l.startswith('#')]
+    return np.array([[float(x) for x in l.replace(',',' ').split()[:2]] for l in lines])*f
 
-def fmt(r): a=r/A; return f"{a:.4f}\\\\"" if abs(a)>=0.01 else f"{a*1000:.3f} mas"
+def fmt(r):
+    a=r/A
+    if abs(a)>=0.01: return f'{a:.4f}"'
+    return f'{a*1000:.3f} mas'
 
 # Full morphology classification with harmonics
 def morph_full(pos):
@@ -82,10 +91,7 @@ def mass(tE,DL,DS,DLS):
     Scr=c**2*DS/(4*np.pi*G*DL*DLS); RE=tE*A*DL
     return np.pi*RE**2*Scr/Ms
 
-QUAD='''0.740, 0.565
--0.635, 0.470
--0.480, -0.755
-0.870, -0.195'''
+QUAD="0.740, 0.565\\n-0.635, 0.470\\n-0.480, -0.755\\n0.870, -0.195"
 
 def t1(txt,u):
     pos=parse(txt,u); n=len(pos); r=np.hypot(pos[:,0],pos[:,1])
@@ -198,7 +204,7 @@ with gr.Blocks(title='RSG Lensing') as demo:
         b6=gr.Button('Plot 3D',variant='primary'); o6=gr.Markdown(); p6=gr.Plot()
         b6.click(t6,[zL,zS,tE],[o6,p6])
 demo.launch(share=True)
-"""
+'''
 
 nb = {
     'nbformat': 4,
