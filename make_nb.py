@@ -212,10 +212,10 @@ def t7_sky(txt,u,tE):
     ax.tick_params(colors='white')
     for spine in ax.spines.values(): spine.set_color('white')
     plt.tight_layout()
-    out=f"## Observer Sky Panel\\n**Korrekte Darstellung:** Einstein-Ring als Winkelprojektion\\n\\n| Bild | θ_x | θ_y | r |\\n|--|--|--|--|\\n"
+    out="## Observer Sky Panel\\n**Korrekte Darstellung:** Einstein-Ring als Winkelprojektion\\n\\n| Bild | θ_x | θ_y | r |\\n|--|--|--|--|\\n"
     for i in range(min(n,4)):
-        r_i=np.hypot(p[i,0],p[i,1])
-        out+=f"| {i+1} | {p[i,0]:.4f}\" | {p[i,1]:.4f}\" | {r_i:.4f}\" |\\n"
+        px,py=p[i,0],p[i,1]; r_i=np.hypot(px,py)
+        out+=f"| {i+1} | {px:.4f} | {py:.4f} | {r_i:.4f} |\\n"
     out+=f"\\n| θ_E | {tE:.4f}\" |\\n\\n**Der grüne Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
     return out, fig
 
