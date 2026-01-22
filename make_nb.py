@@ -165,60 +165,45 @@ def t5(zL,zS,tE):
     out=f"## Cosmology\\n| Param | Value |\\n|--|--|\\n| z_L | {zL:.4f} |\\n| z_S | {zS:.4f} |\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f}\\\" |\\n| R_E | {RE/1e3:.2f} kpc |\\n| Σ_cr | {Scr:.2e} kg/m² |\\n| **M** | **{M:.2e} M☉** |"
     return out, fig
 
-def t6(zL,zS,tE):
-    DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    alpha=tE*A  # deflection angle in radians
-    fig,axes=plt.subplots(1,2,figsize=(14,5))
-    # LEFT: Classic lensing diagram (Source -> Lens -> Observer)
-    ax1=axes[0]; ax1.set_facecolor('#1a1a2e')
-    # Positions along optical axis (x): Source=0, Lens=DL, Observer=DS
-    xS,xL,xO=0,DL/Mpc,DS/Mpc; scale=xO/10
-    # True source position (on axis)
-    ax1.scatter([xS],[0],s=200,c='yellow',edgecolors='orange',zorder=10,label='Wahre Quelle')
-    # Lens (massive object)
-    circle=plt.Circle((xL,0),scale*0.8,color='orange',alpha=0.8,zorder=5)
-    ax1.add_patch(circle)
-    ax1.annotate('Gravitationsfeld',xy=(xL,0),fontsize=9,ha='center',va='center',color='white',weight='bold')
-    # Gravitational field ellipse
-    from matplotlib.patches import Ellipse
-    field=Ellipse((xL,0),scale*4,scale*3,alpha=0.2,color='cyan',zorder=2)
-    ax1.add_patch(field)
-    # Observer (focal point)
-    ax1.scatter([xO],[0],s=150,c='#5dade2',edgecolors='white',zorder=10,label='Brennpunkt (Observer)')
-    # Geodesics bending around lens
-    deflect=scale*1.5  # visual deflection for clarity
-    # Upper ray: Source -> bent around lens -> Observer
-    ax1.annotate('',xy=(xL,deflect*0.8),xytext=(xS,deflect*1.5),
-                 arrowprops=dict(arrowstyle='-',color='white',lw=1.5,ls='--'))
-    ax1.annotate('',xy=(xO,0),xytext=(xL,deflect*0.8),
-                 arrowprops=dict(arrowstyle='->',color='white',lw=1.5))
-    # Lower ray
-    ax1.annotate('',xy=(xL,-deflect*0.8),xytext=(xS,-deflect*1.5),
-                 arrowprops=dict(arrowstyle='-',color='white',lw=1.5,ls='--'))
-    ax1.annotate('',xy=(xO,0),xytext=(xL,-deflect*0.8),
-                 arrowprops=dict(arrowstyle='->',color='white',lw=1.5))
-    # Apparent positions (Scheinbarer Ort)
-    ax1.scatter([xS],[deflect*1.5],s=120,c='yellow',alpha=0.5,zorder=8)
-    ax1.scatter([xS],[-deflect*1.5],s=120,c='yellow',alpha=0.5,zorder=8)
-    ax1.annotate('Scheinbarer Ort',xy=(xS-scale*0.5,deflect*1.8),fontsize=8,color='yellow',ha='center')
-    ax1.annotate('Scheinbarer Ort',xy=(xS-scale*0.5,-deflect*1.8),fontsize=8,color='yellow',ha='center')
-    ax1.annotate('elektromagnetische Wellen',xy=(xL/2,deflect*1.2),fontsize=7,color='lightgray',ha='center')
-    ax1.set_xlim(-scale*2,xO+scale); ax1.set_ylim(-scale*4,scale*4)
-    ax1.set_aspect('equal'); ax1.axis('off')
-    ax1.set_title('Gravitationslinsen-Effekt',fontsize=12,color='white',pad=10)
-    # RIGHT: Observer Sky (angular projection)
-    ax2=axes[1]
-    th=np.linspace(0,2*np.pi,100)
-    ax2.plot(tE*np.cos(th),tE*np.sin(th),'g-',lw=3,label=f'Einstein Ring (θ_E={tE:.3f}")')
-    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Linse (Zentrum)')
-    ax2.scatter([0],[0],s=50,c='yellow',marker='*',alpha=0.7,label='Quelle (dahinter)')
-    ax2.set_xlim(-tE*2,tE*2); ax2.set_ylim(-tE*2,tE*2)
+def t6(txt,u,zL,zS,tE):
+    pos=parse(txt,u); DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
+    n=len(pos); alpha=tE*A; cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
+    fig=plt.figure(figsize=(14,6))
+    # LEFT: 3D rotatable geodesics
+    ax1=fig.add_subplot(121,projection='3d'); ax1.set_facecolor('#0a0a1a')
+    zS_n,zL_n,zO_n=0,0.35,1; rng=0.18
+    ax1.scatter([0],[0],[zS_n],s=200,c='yellow',edgecolors='orange',label='Quelle')
+    ax1.scatter([0],[0],[zL_n],s=150,c='red',marker='s',label='Linse')
+    ax1.scatter([0],[0],[zO_n],s=150,c='#5dade2',edgecolors='white',label='Beobachter')
+    th=np.linspace(0,2*np.pi,50)
+    ax1.plot(rng*np.cos(th),rng*np.sin(th),[zO_n]*50,'g--',alpha=0.5,lw=2,label='Einstein Ring')
+    angs=np.arctan2(pos[:,1],pos[:,0]) if n>0 else np.array([0,np.pi/2,np.pi,3*np.pi/2])
+    rads=np.hypot(pos[:,0],pos[:,1])/(A*tE) if n>0 and tE>0 else np.ones(4)
+    for i in range(min(n,4)):
+        phi=angs[i]; r_s=min(rads[i],1.3)*rng
+        xi,yi=r_s*np.cos(phi),r_s*np.sin(phi); bd=0.04
+        ax1.plot([0,bd*np.cos(phi+np.pi),xi],[0,bd*np.sin(phi+np.pi),yi],[zS_n,zL_n,zO_n],c=cols[i],lw=2)
+        ax1.scatter([xi],[yi],[zO_n],s=100,c=cols[i],edgecolors='white')
+        ax1.text(xi*1.3,yi*1.3,zO_n,f'{i+1}',fontsize=9,color=cols[i],weight='bold')
+    ax1.set_xlim(-.25,.25); ax1.set_ylim(-.25,.25); ax1.set_zlim(-.05,1.05)
+    ax1.set_xlabel('X'); ax1.set_ylabel('Y'); ax1.set_zlabel('z')
+    ax1.set_title('3D Geodäten (rotierbar)'); ax1.legend(loc='upper left',fontsize=7)
+    # RIGHT: Observer sky with 4 images
+    ax2=fig.add_subplot(122); th=np.linspace(0,2*np.pi,100)
+    ax2.plot(tE*np.cos(th),tE*np.sin(th),'g--',lw=2,alpha=0.7,label=f'θ_E={tE:.3f}"')
+    ax2.scatter([0],[0],s=100,c='red',marker='+',lw=2,label='Linse')
+    p=pos/A
+    for i in range(min(n,4)):
+        ax2.scatter([p[i,0]],[p[i,1]],s=120,c=cols[i],edgecolors='k')
+        ax2.annotate(f'{i+1}',(p[i,0],p[i,1]),xytext=(5,5),textcoords='offset points',
+                     fontsize=9,weight='bold',color=cols[i])
+    lim=max(tE*1.5,np.max(np.abs(p))*1.2) if n>0 else tE*2
+    ax2.set_xlim(-lim,lim); ax2.set_ylim(-lim,lim)
     ax2.set_aspect('equal'); ax2.grid(alpha=0.3)
     ax2.set_xlabel('θ_x [arcsec]'); ax2.set_ylabel('θ_y [arcsec]')
-    ax2.set_title('Beobachter-Himmel: Ring als Winkelprojektion')
-    ax2.legend(loc='upper right',fontsize=8)
+    ax2.set_title('Beobachter-Himmel: 4 Bilder auf Ring'); ax2.legend(fontsize=8)
     plt.tight_layout()
-    out=f"## Gravitationslinsen-Geometrie\\n**Kernaussage:** Der Einsteinring ist KEIN physisches Objekt im Raum.\\nEr existiert nur als **Winkelprojektion am Himmel des Beobachters**.\\n\\n| Parameter | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f} arcsec |\\n| α (Ablenkung) | {np.degrees(alpha)*3600:.4f} arcsec |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** Geodäten biegen sich um die Masse\\n**Rechts:** Ring erscheint in Winkelkoordinaten"
+    out=f"## Einstein Kreuz - 3D\\n**{n} Bilder** auf Einstein Ring\\n\\n| Param | Wert |\\n|--|--|\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f}\" |\\n| M | {M:.2e} M☉ |\\n\\n**Links:** 3D rotierbar\\n**Rechts:** Bilder auf Ring-Hilfslinie"
     return out, fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
@@ -243,7 +228,7 @@ with gr.Blocks(title='RSG Lensing') as demo:
         b5.click(t5,[zL,zS,tE],[o5,p5])
     with gr.Tab('3D Scene'):
         b6=gr.Button('Plot 3D',variant='primary'); o6=gr.Markdown(); p6=gr.Plot()
-        b6.click(t6,[zL,zS,tE],[o6,p6])
+        b6.click(t6,[txt,unit,zL,zS,tE],[o6,p6])
 demo.launch(share=True)
 '''
 
