@@ -2,7 +2,7 @@ import json
 
 code = '''#@title RSG Lensing Suite - Clone & Run (Full Version)
 # Clone the repository and install dependencies
-!git clone --depth 1 https://github.com/error-wtf/ssz-lensing.git 2>/dev/null || echo "Repo already cloned"
+!rm -rf ssz-lensing 2>/dev/null; git clone --depth 1 https://github.com/error-wtf/ssz-lensing.git
 !pip install -q gradio numpy matplotlib scipy
 
 import sys
