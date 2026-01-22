@@ -2,9 +2,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .state import DatasetState
+from .extended_analysis import (
+    run_morphology_classification, run_ring_analysis,
+    run_exact_inversion, compute_distances_from_redshifts,
+    compute_mass_from_theta_E, create_3d_scene, plot_3d_scene,
+    get_model_recommendations
+)
 
 
-def run_quicklook(ds_dict):
+def run_quicklook_extended(ds_dict):
     """Run quicklook analysis on active dataset."""
     if not ds_dict or not ds_dict.get("validated"):
         return "⚠️ No active dataset. Go to Data tab.", "", None
@@ -50,6 +56,125 @@ def run_quicklook(ds_dict):
     plt.tight_layout()
     
     return summary, metrics, fig
+
+
+def run_quicklook(ds_dict):
+    """Full quicklook with morphology classification and ring analysis."""
+    if not ds_dict or not ds_dict.get("validated"):
+        return "⚠️ No active dataset. Go to Data tab.", "", None, None
+    
+    ds = DatasetState.from_dict(ds_dict)
+    positions = np.array(ds.points)
+    center = tuple(np.mean(positions, axis=0))
+    
+    # Run morphology classification
+    morph_result = run_morphology_classification(positions, center)
+    
+    # Run ring analysis for harmonics
+    ring_result, ring_plot = run_ring_analysis(positions)
+    
+    # Summary
+    summary = f"""## Quicklook Analysis
+
+### Dataset
+- **ID:** {ds.dataset_id}
+- **Mode:** {ds.mode}
+- **Points:** {len(positions)}
+- **Unit:** {ds.unit}
+
+### Morphology Classification
+- **Type:** {morph_result['primary'].upper()}
+- **Confidence:** {morph_result['confidence']:.0%}
+- **Azimuthal Coverage:** {morph_result['azimuthal_coverage']:.0%}
+
+### Ring Geometry
+- **Center:** ({ring_result['center'][0]:.4f}, {ring_result['center'][1]:.4f})
+- **θ_E estimate:** {ring_result['radius']:.4f} {ds.unit}
+- **RMS residual:** {ring_result['rms_residual']:.4f}
+- **Perturbation:** {ring_result['perturbation_type']}
+"""
+    
+    # Metrics table
+    metrics = f"""## Harmonic Analysis
+
+| Mode | Amplitude | Phase (deg) |
+|------|-----------|-------------|
+| m=0 (ring) | {ring_result['radius']:.4f} | - |
+| m=2 (quad) | {ring_result['m2_amplitude']:.4f} | {np.degrees(ring_result['m2_phase']):.1f} |
+| m=4 (hex) | {ring_result['m4_amplitude']:.4f} | {np.degrees(ring_result['m4_phase']):.1f} |
+
+{get_model_recommendations(morph_result)}
+"""
+    
+    return summary, metrics, ring_plot, morph_result
+
+
+def run_inversion_exact(ds_dict):
+    """Run exact no-fit inversion (QUAD only)."""
+    if not ds_dict or not ds_dict.get("validated"):
+        return "⚠️ No active dataset.", "", None
+    
+    ds = DatasetState.from_dict(ds_dict)
+    if ds.mode != "QUAD":
+        return "⚠️ Exact inversion requires QUAD (4 images).", "", None
+    
+    positions = np.array(ds.points)
+    center = tuple(np.mean(positions, axis=0))
+    
+    params, residuals = run_exact_inversion(positions, center)
+    
+    if 'error' in params:
+        return f"❌ Inversion failed: {params['error']}", "", None
+    
+    summary = f"""## Exact Inversion Results (No-Fit)
+
+### Recovered Parameters
+| Parameter | Value |
+|-----------|-------|
+| θ_E | {params['theta_E']:.6f} |
+| β (source offset) | {params['beta']:.6f} |
+| φ_β (offset angle) | {params['phi_beta_deg']:.2f}° |
+| a (radial quad) | {params['a']:.6f} |
+| b (tangential quad) | {params['b']:.6f} |
+| φ_γ (quad axis) | {params['phi_gamma_deg']:.2f}° |
+
+### Residuals
+- **Max |residual|:** {residuals['max_abs']:.2e}
+- **RMS:** {residuals['rms']:.2e}
+- **Exact fit:** {'✅ Yes' if residuals['exact_fit'] else '❌ No'}
+"""
+    
+    # Plot
+    fig, ax = plt.subplots(figsize=(7, 7))
+    ax.scatter(positions[:, 0], positions[:, 1], s=120, c='blue', 
+               label='Observed', zorder=5)
+    ax.scatter([center[0]], [center[1]], s=200, c='red', marker='+', 
+               linewidths=2, label='Center', zorder=5)
+    
+    # Einstein ring
+    theta = np.linspace(0, 2*np.pi, 100)
+    r_ring = params['theta_E'] + params['a'] * np.cos(2*theta)
+    x_ring = center[0] + r_ring * np.cos(theta)
+    y_ring = center[1] + r_ring * np.sin(theta)
+    ax.plot(x_ring, y_ring, 'g--', linewidth=2, label=f"θ_E={params['theta_E']:.4f}")
+    
+    # Source position
+    beta_x, beta_y = params['beta_x'], params['beta_y']
+    ax.scatter([center[0] + beta_x], [center[1] + beta_y], s=150, c='orange',
+               marker='*', label=f'Source β={params["beta"]:.4f}', zorder=5)
+    
+    ax.set_xlabel(f'x ({ds.unit})')
+    ax.set_ylabel(f'y ({ds.unit})')
+    ax.set_aspect('equal')
+    ax.legend(loc='upper right')
+    ax.set_title(f'Exact Inversion: {ds.dataset_id}')
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    
+    details = f"Max residual: {residuals['max_abs']:.2e} → " + \
+              ("**Exact model fit**" if residuals['exact_fit'] else "Local model adequate")
+    
+    return summary, details, fig
 
 
 def run_inversion(ds_dict, m2, shear, m3, m4):

@@ -22,7 +22,7 @@ class CosmologyParams:
     H0: float          # Hubble constant in km/s/Mpc
     Omega_m: float     # Matter density
     Omega_L: float     # Dark energy density
-    Omega_k: float     # Curvature (= 1 - Omega_m - Omega_L)
+    Omega_k: float = 0.0  # Curvature (computed in __post_init__)
 
     def __post_init__(self):
         self.Omega_k = 1.0 - self.Omega_m - self.Omega_L
