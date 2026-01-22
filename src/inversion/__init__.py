@@ -38,6 +38,22 @@ from .diagnostics import (
     solution_quality_score,
     print_diagnostic_summary
 )
+from .lens_equation import (
+    InputMode,
+    MorphologyResult,
+    SourceConsistency,
+    classify_morphology,
+    compute_source_positions,
+    check_source_consistency,
+    DEFLECTION_MODELS
+)
+from .quad_inversion import (
+    InversionResult,
+    ModelComparison,
+    invert_quad,
+    compare_models,
+    generate_synthetic_quad
+)
 
 __all__ = [
     'solve_linear_exact', 'solve_linear_subset', 'choose_invertible_subset',
@@ -46,5 +62,11 @@ __all__ = [
     'count_degrees_of_freedom', 'check_image_multiplicity',
     'observable_equations', 'inversion_summary',
     'residual_report', 'compare_solutions', 'consistency_check',
-    'solution_quality_score', 'print_diagnostic_summary'
+    'solution_quality_score', 'print_diagnostic_summary',
+    # Real inversion framework
+    'InputMode', 'MorphologyResult', 'SourceConsistency',
+    'classify_morphology', 'compute_source_positions', 'check_source_consistency',
+    'DEFLECTION_MODELS',
+    'InversionResult', 'ModelComparison',
+    'invert_quad', 'compare_models', 'generate_synthetic_quad'
 ]
