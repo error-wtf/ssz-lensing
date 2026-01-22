@@ -58,7 +58,8 @@ def t2(txt,u):
     ax.scatter(p[:,0],p[:,1],s=80,c='blue')
     ax.plot(cx/A+R/A*np.cos(t),cy/A+R/A*np.sin(t),'g--',lw=2)
     ax.scatter([cx/A],[cy/A],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)'); ax.grid(alpha=.3)
+    ax.set_title(f'{m} (conf={conf:.0%})')
     return f"**{m}** ({conf:.0%})\nR={R/A:.4f} arcsec", fig
 
 def t3(txt,u):
@@ -67,7 +68,8 @@ def t3(txt,u):
     ax.scatter(p[:,0],p[:,1],s=80,c='blue')
     ax.plot(cx/A+R/A*np.cos(t),cy/A+R/A*np.sin(t),'g-',lw=2)
     ax.scatter([cx/A],[cy/A],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)'); ax.grid(alpha=.3)
+    ax.set_title(f'Ring Fit: R={R/A:.3f}"')
     return f"R={R/A:.4f} arcsec\nRMS={rms/A:.6f} arcsec", fig
 
 def t4(txt,u):
@@ -78,15 +80,17 @@ def t4(txt,u):
     ax.scatter(p[:,0],p[:,1],s=100,c='blue',zorder=5)
     ax.plot(tE/A*np.cos(t),tE/A*np.sin(t),'g--',lw=2)
     ax.scatter([0],[0],s=150,c='red',marker='+',lw=3); ax.set_aspect('equal')
-    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)')
-    ax.set_title(f'θ_E = {tE/A:.3f}"')
+    ax.set_xlabel('x (arcsec)'); ax.set_ylabel('y (arcsec)'); ax.grid(alpha=.3)
+    ax.set_title(f'Inversion: θ_E = {tE/A:.3f}"')
     return f"theta_E={tE/A:.4f} arcsec\nRMS={rms/A:.6f} arcsec", fig
 
 def t5(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    fig,ax=plt.subplots(); ax.barh(['D_L','D_S','D_LS'],[DL/Mpc,DS/Mpc,DLS/Mpc])
-    ax.set_xlabel('Mpc')
-    ax.set_ylabel('Distance (Mpc)')
+    fig,ax=plt.subplots(figsize=(8,5))
+    bars=ax.barh(['D_L (Lens)','D_S (Source)','D_LS'],[DL/Mpc,DS/Mpc,DLS/Mpc],color=['red','blue','green'])
+    ax.bar_label(bars, fmt='%.0f Mpc')
+    ax.set_xlabel('Distance (Mpc)'); ax.set_title(f'Cosmology: M = {M:.2e} M☉')
+    ax.grid(alpha=.3, axis='x')
     return f"D_L={DL/Mpc:.0f} Mpc\nD_S={DS/Mpc:.0f} Mpc\n**M={M:.2e} Msun**", fig
 
 def t6(zL,zS,tE):
