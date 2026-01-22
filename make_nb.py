@@ -11,7 +11,7 @@ sys.path.insert(0, 'ssz-lensing/src')
 import gradio as gr, numpy as np, matplotlib.pyplot as plt, plotly.graph_objects as go
 from scipy.integrate import quad as iq
 
-A=np.pi/(180*3600); G,c,Ms,Mpc=6.674e-11,299792458,1.989e30,3.086e22
+A=np.pi/(180*3600); G,c,Ms,Mpc,pc=6.674e-11,299792458,1.989e30,3.086e22,3.086e16
 
 def parse(t,u='arcsec'):
     f={'arcsec':A,'mas':A/1000,'rad':1}[u]
