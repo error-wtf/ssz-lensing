@@ -98,13 +98,50 @@ ssz-lensing/
 └── README.md
 ```
 
+## Two Circles: Sky vs Lens Plane
+
+**Critical distinction** to avoid conceptual errors:
+
+| Circle | Location | Units | Physical Meaning |
+|--------|----------|-------|------------------|
+| **Sky circle** | Observer sky plane | arcsec (θ_E) | Angular Einstein radius - where images appear |
+| **Impact circle** | Lens plane (z=D_L) | kpc (b_E = D_L×θ_E) | Ray crossing radius - NOT Einstein ring! |
+
+The **Einstein ring** is an *image-plane feature* (angular). The **impact circle** is a *lens-plane helper* (physical distance).
+
+## Data Source Tab
+
+Load real lensing data or enter custom positions:
+
+| Dataset | Type | z_L | z_S | θ_E | Source |
+|---------|------|-----|-----|-----|--------|
+| Q2237+0305 | QUAD | 0.039 | 1.695 | 0.89" | CASTLES/HST |
+| SDSS J1004+4112 | RING | 0.68 | 1.734 | 7.0" | Inada et al. 2003 |
+
+Click "Build LensingRun" to compute all derived quantities.
+
+## GR vs SSZ Scaling Mode
+
+Two parallel calculations:
+
+1. **GR baseline**: Standard thin-lens geometry
+2. **SSZ scaling**: `θ_SSZ = s(b_E) × θ_GR` where `s = 1 + Ξ`
+
+The **Wirkungskette** (effect chain):
+```
+Ξ(r) → s(r) = 1+Ξ → b_SSZ = s·b_GR → θ_SSZ = s·θ_GR
+```
+
+At typical Einstein radii, Ξ ~ 10⁻⁶, so shifts are ~µas level.
+
 ## Quick Start
 
 ### Run Tests
 
 ```bash
-cd tests
-python test_radial_scaling_gauge.py
+pytest tests/ -v
+# 13 tests for LensingRun geometry
+# 28 tests for RSG physics
 ```
 
 ### Generate Plots
