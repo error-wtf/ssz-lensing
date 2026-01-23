@@ -330,37 +330,40 @@ def t7_sky(txt,u,tE):
     return out, fig
 
 def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
+    """Carmen Paper Tab: Full RSG physics with path integrals."""
     pos=parse(txt,u); n=len(pos)
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     r_s=2*G*M*Ms/c**2; b_E=DL*tE*A; b_E_kpc=b_E/(1e3*pc)
     cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    # GR positions (from input or fallback Q2237)
     if n>0:
         th_GR=pos/A; r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
     else:
         d=CROSS_DATA; th_GR=np.array(d['positions_arcsec'])
         r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
-    n_img=min(len(r_GR),4)
-    b_GR=DL*r_GR[:n_img]*A; mean_b=np.mean(b_GR)
-    # R_ref selector
+    n_img=min(len(r_GR),4); b_GR=DL*r_GR[:n_img]*A; mean_b=np.mean(b_GR)
     if R_ref_mode=='b_E (Einstein)': R_ref=b_E; R_ref_name='b_E'
     elif R_ref_mode=='mean(b_i)': R_ref=mean_b; R_ref_name='mean(b_i)'
     elif R_ref_mode=='k × r_s': R_ref=k_rs*r_s; R_ref_name=f'{k_rs:.1f}×r_s'
     else: R_ref=b_E; R_ref_name='b_E'
-    # RSG at R_ref
     Xi_ref=r_s/(2*R_ref); s_ref=1+Xi_ref; D_ref=1/s_ref
-    # SSZ scaling
+    # === CARMEN PAPER INTEGRALS ===
+    def delay_int(z,b): r=np.sqrt(b**2+z**2); return r_s/(2*r) if r>r_s else 0
+    def alpha_int(z,b):
+        r=np.sqrt(b**2+z**2)
+        if r<=r_s: return 0
+        Xi=r_s/(2*r); s=1+Xi; dXi=-r_s/(2*r**2); return (1/s)*dXi*(b/r)
+    b_arr=np.linspace(r_s*2,b_E*3,50); z_max=DL*0.1
+    Delta_t=np.array([iq(delay_int,-z_max,z_max,args=(b,))[0]/c for b in b_arr])
+    alpha_RSG=np.array([iq(alpha_int,-z_max,z_max,args=(b,))[0] for b in b_arr])
+    alpha_PPN=2*r_s/b_arr
+    r_vals=np.logspace(np.log10(r_s*1.5),np.log10(b_E*5),100)
+    Xi_r=r_s/(2*r_vals); s_r=1+Xi_r; D_r=1/s_r; k_eff=s_r
     r_SSZ=s_ref*r_GR; th_SSZ=np.column_stack([r_SSZ*np.cos(ang),r_SSZ*np.sin(ang)])
-    b_SSZ=s_ref*b_GR
-    Delta_th=r_SSZ[:n_img]-r_GR[:n_img]; Delta_b=b_SSZ-b_GR
-    # Predicted vs Measured
-    pred_dth_rel=s_ref-1; pred_dth_abs=pred_dth_rel*np.mean(r_GR[:n_img])
-    meas_dth_max=np.max(np.abs(Delta_th)); meas_dth_mean=np.mean(np.abs(Delta_th))
-    meas_db_max=np.max(np.abs(Delta_b)); meas_db_mean=np.mean(np.abs(Delta_b))
-    # Consistency check
-    tol=1e-10; consist='PASS' if abs(meas_dth_max-pred_dth_abs*np.max(r_GR[:n_img])/np.mean(r_GR[:n_img]))<tol*10 else 'CHECK'
-    fig=plt.figure(figsize=(16,14))
-    gs=fig.add_gridspec(3,3,height_ratios=[1,1,0.8],hspace=0.3,wspace=0.3)
+    b_SSZ=s_ref*b_GR; Delta_th=r_SSZ[:n_img]-r_GR[:n_img]
+    pred_dth_rel=s_ref-1; meas_dth_max=np.max(np.abs(Delta_th))
+    consist='PASS' if np.allclose(Delta_th/r_GR[:n_img],Xi_ref,rtol=1e-6) else 'CHECK'
+    fig=plt.figure(figsize=(18,22))
+    gs=fig.add_gridspec(4,3,height_ratios=[1,1,1,0.6],hspace=0.35,wspace=0.3)
     circ=np.linspace(0,2*np.pi,100)
     # ROW 1: Xi(r), s(r), D(r) — existing gauge plots
     r_vals=np.logspace(np.log10(r_s),np.log10(b_E*5),100)
@@ -382,10 +385,27 @@ def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
     ax.axvline(R_ref/r_s,color='lime',ls='--',lw=2)
     ax.axhline(D_ref,color='orange',ls=':',lw=2,label=f'D(R_ref)={D_ref:.8f}')
     ax.set_xlabel('r/r_s'); ax.set_ylabel('D(r)'); ax.legend(fontsize=8); ax.grid(alpha=.3)
-    ax.set_title('D(r): Dilation Factor')
-    # ROW 2: Mini-Sky + Mini-Lens + Consistency Panel
+    ax.set_title('D(r): Clock Dilation')
+    # ROW 2: Shapiro Delay, Deflection α(b), k_eff — CARMEN PAPER INTEGRALS
     ax=fig.add_subplot(gs[1,0])
-    ax.plot(tE*np.cos(circ),tE*np.sin(circ),'gray',ls='--',lw=1.5,label=f'θ_E={tE:.3f}"')
+    ax.semilogy(b_arr/r_s,Delta_t*1e6,'b-',lw=2,label='Δt=(1/c)∫Ξdz')
+    ax.axvline(b_E/r_s,color='lime',ls='--',lw=2,label='b_E')
+    ax.set_xlabel('b/r_s'); ax.set_ylabel('Δt [μs]'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('Shapiro Delay from Path Integral')
+    ax=fig.add_subplot(gs[1,1])
+    ax.loglog(b_arr/r_s,np.abs(alpha_RSG),'b-',lw=2,label='α_RSG=∫∇⊥lns dz')
+    ax.loglog(b_arr/r_s,alpha_PPN,'r--',lw=2,label='α_PPN=2r_s/b')
+    ax.axvline(b_E/r_s,color='lime',ls='--',lw=2)
+    ax.set_xlabel('b/r_s'); ax.set_ylabel('α [rad]'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('Deflection: RSG Integral vs PPN')
+    ax=fig.add_subplot(gs[1,2])
+    ax.semilogx(r_vals/r_s,k_eff,'b-',lw=2,label='k_eff/k=s(r)')
+    ax.axvline(R_ref/r_s,color='lime',ls='--',lw=2); ax.axhline(1.0,color='gray',ls=':',lw=1)
+    ax.set_xlabel('r/r_s'); ax.set_ylabel('k_eff/k'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('Effective Wavenumber (Maxwell)')
+    # ROW 3: Mini-Sky + Mini-Lens + Metrics
+    ax=fig.add_subplot(gs[2,0])
+    ax.plot(tE*np.cos(circ),tE*np.sin(circ),'gray',ls='--',lw=1.5,label='θ_E')
     ax.axhline(0,color='gray',lw=0.3); ax.axvline(0,color='gray',lw=0.3)
     for i in range(n_img):
         gx,gy=th_GR[i]; sx,sy=th_SSZ[i]
@@ -394,56 +414,50 @@ def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
         ax.annotate('',(sx,sy),(gx,gy),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
     ax.scatter([0],[0],s=50,c='red',marker='+',lw=2,label='Lens')
     ax.set_aspect('equal'); ax.set_xlabel('θ_x ["]'); ax.set_ylabel('θ_y ["]')
-    ax.legend(fontsize=7,loc='upper right'); ax.grid(alpha=.3)
-    ax.set_title('Sky Inset: GR→SSZ shift')
-    ax=fig.add_subplot(gs[1,1])
-    ax.plot(b_E_kpc*np.cos(circ),b_E_kpc*np.sin(circ),'gray',ls='--',lw=1.5,label=f'b_E')
-    ax.plot(b_E_kpc*s_ref*np.cos(circ),b_E_kpc*s_ref*np.sin(circ),'lime',ls='-',lw=2,label=f'b_E×s')
+    ax.legend(fontsize=7); ax.grid(alpha=.3); ax.set_title('Sky: GR→RSG shift')
+    ax=fig.add_subplot(gs[2,1])
+    ax.plot(b_E_kpc*np.cos(circ),b_E_kpc*np.sin(circ),'gray',ls='--',lw=1.5,label='b_E')
+    ax.plot(b_E_kpc*s_ref*np.cos(circ),b_E_kpc*s_ref*np.sin(circ),'lime',ls='-',lw=2,label='b_E×s')
     for i in range(n_img):
-        bx,by=b_GR[i]/(1e3*pc)*np.cos(ang[i]),b_GR[i]/(1e3*pc)*np.sin(ang[i])
-        sx,sy=b_SSZ[i]/(1e3*pc)*np.cos(ang[i]),b_SSZ[i]/(1e3*pc)*np.sin(ang[i])
+        bx=b_GR[i]/(1e3*pc)*np.cos(ang[i]); by=b_GR[i]/(1e3*pc)*np.sin(ang[i])
+        sx=b_SSZ[i]/(1e3*pc)*np.cos(ang[i]); sy=b_SSZ[i]/(1e3*pc)*np.sin(ang[i])
         ax.scatter([bx],[by],s=60,c='gray',marker='s',alpha=0.5)
         ax.scatter([sx],[sy],s=80,c=cols[i],marker='s',edgecolors='white',lw=1.5)
         ax.annotate('',(sx,sy),(bx,by),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1))
     ax.scatter([0],[0],s=60,c='red',marker='x',lw=2,label='Lens')
     ax.set_aspect('equal'); ax.set_xlabel('x [kpc]'); ax.set_ylabel('y [kpc]')
-    ax.legend(fontsize=7,loc='upper right'); ax.grid(alpha=.3)
-    ax.set_title('Lens Plane: Impact circle (NOT ring!)')
-    ax=fig.add_subplot(gs[1,2]); ax.axis('off')
-    box=f"PREDICTED vs MEASURED at R_ref={R_ref_name}\\n{'='*42}\\n"
-    box+=f"Ξ(R_ref)  = {Xi_ref:.4e}\\n"
-    box+=f"s(R_ref)  = {s_ref:.10f}\\n"
-    box+=f"D(R_ref)  = {D_ref:.10f}\\n\\n"
-    box+=f"PREDICTED (from s-1):\\n"
-    box+=f"  Δθ/θ = Δb/b = {pred_dth_rel:.4e}\\n"
-    box+=f"  |Δθ|_pred  = {pred_dth_abs*1000:.4f} mas\\n\\n"
-    box+=f"MEASURED (from images):\\n"
-    box+=f"  max|Δθ| = {meas_dth_max*1000:.4f} mas\\n"
-    box+=f"  mean|Δθ|= {meas_dth_mean*1000:.4f} mas\\n"
-    box+=f"  max|Δb| = {meas_db_max/(1e3*pc):.4e} kpc\\n\\n"
-    box+=f"{'='*42}\\nConsistency: {consist}\\n"
-    box+=f"(Δθ/θ agrees with s-1 within tolerance)"
-    ax.text(0.05,0.95,box,transform=ax.transAxes,fontsize=10,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#e8f5e9' if consist=='PASS' else '#fff3e0',edgecolor='green' if consist=='PASS' else 'orange',lw=2))
-    # ROW 3: Wirkungskette + What happens when R changes
-    ax=fig.add_subplot(gs[2,:])
-    ax.axis('off')
-    explain=f"WIRKUNGSKETTE (Effect Chain)\\n"
-    explain+=f"{'='*60}\\n\\n"
-    explain+=f"Ξ(r) = r_s/(2r)  →  s(r) = 1+Ξ  →  b_SSZ = s·b_GR  →  θ_SSZ = s·θ_GR\\n\\n"
-    explain+=f"At R_ref = {R_ref_name}:\\n"
-    explain+=f"  • Ξ = {Xi_ref:.2e} (small but nonzero)\\n"
-    explain+=f"  • s = {s_ref:.10f} (slightly > 1)\\n"
-    explain+=f"  • All images shift OUTWARD by factor s\\n"
-    explain+=f"  • Shift magnitude: {pred_dth_abs*1000:.4f} mas\\n\\n"
-    explain+=f"As R_ref increases → Ξ→0 → s→1 → SSZ converges to GR.\\n"
-    explain+=f"As R_ref decreases toward r_s → Ξ grows → larger deviation."
-    ax.text(0.02,0.95,explain,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#f5f5f5',edgecolor='gray'))
+    ax.legend(fontsize=7); ax.grid(alpha=.3); ax.set_title('Lens Plane: Impact circle')
+    ax=fig.add_subplot(gs[2,2]); ax.axis('off')
+    Dt_bE=np.interp(b_E,b_arr,Delta_t); aRSG_bE=np.interp(b_E,b_arr,np.abs(alpha_RSG)); aPPN_bE=2*r_s/b_E
+    box=f"CARMEN PAPER METRICS at R_ref={R_ref_name}\\n{'='*44}\\n"
+    box+=f"Ξ(R_ref)={Xi_ref:.4e}  s={s_ref:.8f}  D={D_ref:.8f}\\n\\n"
+    box+=f"PATH INTEGRALS at b_E:\\n"
+    box+=f"  Δt(b_E)   = {Dt_bE*1e6:.4f} μs\\n"
+    box+=f"  α_RSG     = {aRSG_bE:.4e} rad\\n"
+    box+=f"  α_PPN     = {aPPN_bE:.4e} rad\\n"
+    box+=f"  α_RSG/PPN = {aRSG_bE/aPPN_bE:.4f}\\n\\n"
+    box+=f"IMAGE SHIFT: Δθ/θ=s-1={pred_dth_rel:.4e}\\n"
+    box+=f"  max|Δθ|={meas_dth_max*1000:.4f} mas\\n\\nConsistency: {consist}"
+    fc='#e8f5e9' if consist=='PASS' else '#fff3e0'; ec='green' if consist=='PASS' else 'orange'
+    ax.text(0.05,0.95,box,transform=ax.transAxes,fontsize=9,va='top',ha='left',family='monospace',
+            bbox=dict(boxstyle='round',facecolor=fc,edgecolor=ec,lw=2))
+    # ROW 4: Wirkungskette — Carmen Paper
+    ax=fig.add_subplot(gs[3,:]); ax.axis('off')
+    explain=f"WIRKUNGSKETTE (Carmen Paper Effect Chain)\\n{'='*65}\\n\\n"
+    explain+=f"Ξ(r)=r_s/(2r) → s(r)=1+Ξ → dρ=s·dr → Δt=(1/c)∫s dr\\n"
+    explain+=f"                          → k_eff=k·s → Δφ=k∫Ξ dr\\n"
+    explain+=f"                          → α=∫∇⊥ ln s dz\\n\\n"
+    explain+=f"At b_E: Δt={Dt_bE*1e6:.2f}μs | α_RSG/α_PPN={aRSG_bE/aPPN_bE:.4f}\\n\\n"
+    explain+=f"As r→∞: Ξ→0, s→1, Δt→0, α→0 — RSG converges to flat spacetime."
+    ax.text(0.02,0.95,explain,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',
+            bbox=dict(boxstyle='round',facecolor='#f5f5f5',edgecolor='gray'))
     plt.tight_layout()
-    out=f"## Radial Gauge — Self-Contained Meaning Tab\\n\\n"
+    out=f"## Radial Gauge — Carmen Paper Tab\\n\\n"
     out+=f"**R_ref:** {R_ref_name} = {R_ref:.3e} m = {R_ref/r_s:.1f} r_s\\n\\n"
-    out+=f"| Quantity | Value |\\n|--|--|\\n"
-    out+=f"| Ξ(R_ref) | {Xi_ref:.4e} |\\n| s(R_ref) | {s_ref:.10f} |\\n| D(R_ref) | {D_ref:.10f} |\\n"
-    out+=f"| Δθ/θ predicted | {pred_dth_rel:.4e} |\\n| max Δθ measured | {meas_dth_max*1000:.4f} mas |\\n"
+    out+=f"### Path Integrals at b_E\\n| Quantity | Value |\\n|--|--|\\n"
+    out+=f"| Δt(b_E) | {Dt_bE*1e6:.4f} μs |\\n| α_RSG | {aRSG_bE:.4e} rad |\\n"
+    out+=f"| α_PPN | {aPPN_bE:.4e} rad |\\n| α_RSG/α_PPN | {aRSG_bE/aPPN_bE:.4f} |\\n\\n"
+    out+=f"### Local Values\\n| Ξ(R_ref) | {Xi_ref:.4e} |\\n| s(R_ref) | {s_ref:.10f} |\\n"
     out+=f"\\n**Consistency:** {consist}"
     return out, fig
 

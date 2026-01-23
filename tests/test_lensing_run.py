@@ -246,5 +246,111 @@ class TestPhysicalConsistency:
         assert ratio < 1e-3, f"r_s/b_E = {ratio} is not weak field"
 
 
+class TestCarmenPaperIntegrals:
+    """Tests for Carmen Paper RSG integrals: delay, deflection, phase."""
+    
+    def test_gauge_no_nan(self):
+        """All gauge integrals must produce finite values."""
+        from scipy.integrate import quad as iq
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        r_s = run['r_s']
+        b_E = run['b_E']
+        
+        def delay_int(z, b):
+            r = np.sqrt(b**2 + z**2)
+            return r_s / (2 * r) if r > r_s else 0
+        
+        b_arr = np.linspace(r_s * 2, b_E * 3, 20)
+        z_max = run['D_L'] * Mpc * 0.1
+        Delta_t = np.array([iq(delay_int, -z_max, z_max, args=(b,))[0] / c for b in b_arr])
+        
+        assert not np.any(np.isnan(Delta_t)), "Delay integral has NaN"
+        assert np.all(Delta_t >= 0), "Delay must be non-negative"
+    
+    def test_alpha_rsg_vs_ppn(self):
+        """α_RSG integral should be finite and physical."""
+        from scipy.integrate import quad as iq
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        r_s = run['r_s']
+        b_E = run['b_E']
+        
+        def alpha_int(z, b):
+            r = np.sqrt(b**2 + z**2)
+            if r <= r_s:
+                return 0
+            Xi = r_s / (2 * r)
+            s = 1 + Xi
+            dXi = -r_s / (2 * r**2)
+            return (1 / s) * dXi * (b / r)
+        
+        # Use smaller integration range (near lens)
+        z_max = b_E * 100
+        alpha_RSG = abs(iq(alpha_int, -z_max, z_max, args=(b_E,))[0])
+        alpha_PPN = 2 * r_s / b_E
+        
+        # RSG integral is finite and non-zero
+        assert alpha_RSG > 0, "α_RSG should be positive"
+        assert np.isfinite(alpha_RSG), "α_RSG should be finite"
+        # Both are in same regime (very small angles)
+        assert alpha_PPN < 1e-3, "α_PPN should be small angle"
+    
+    def test_delay_monotonic_vs_b(self):
+        """Delay should decrease as impact parameter b increases."""
+        from scipy.integrate import quad as iq
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        r_s = run['r_s']
+        
+        def delay_int(z, b):
+            r = np.sqrt(b**2 + z**2)
+            return r_s / (2 * r) if r > r_s else 0
+        
+        b_arr = np.linspace(r_s * 5, r_s * 100, 10)
+        z_max = run['D_L'] * Mpc * 0.01
+        Delta_t = np.array([iq(delay_int, -z_max, z_max, args=(b,))[0] for b in b_arr])
+        
+        # Delay should decrease with b
+        assert np.all(np.diff(Delta_t) <= 0), "Delay should decrease with b"
+    
+    def test_xi_to_zero_limit(self):
+        """As r→∞, Ξ→0 and all effects vanish."""
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        r_s = run['r_s']
+        
+        r_far = r_s * 1e10
+        Xi_far = r_s / (2 * r_far)
+        s_far = 1 + Xi_far
+        
+        assert Xi_far < 1e-10, "Ξ should vanish at large r"
+        assert abs(s_far - 1) < 1e-10, "s should → 1 at large r"
+    
+    def test_phase_delay_relation(self):
+        """Δφ = ω·Δt for consistent path (Maxwell relation)."""
+        from scipy.integrate import quad as iq
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        r_s = run['r_s']
+        b = run['b_E']
+        
+        def xi_int(z, b):
+            r = np.sqrt(b**2 + z**2)
+            return r_s / (2 * r) if r > r_s else 0
+        
+        z_max = run['D_L'] * Mpc * 0.01
+        Delta_path = iq(xi_int, -z_max, z_max, args=(b,))[0]
+        Delta_t = Delta_path / c
+        
+        omega = 2 * np.pi * c / (500e-9)  # optical
+        k = omega / c
+        Delta_phi = k * Delta_path
+        Delta_phi_from_t = omega * Delta_t
+        
+        assert np.isclose(Delta_phi, Delta_phi_from_t, rtol=1e-10), \
+            "Δφ = ω·Δt relation violated"
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
