@@ -134,6 +134,43 @@ The **Wirkungskette** (effect chain):
 
 At typical Einstein radii, Ξ ~ 10⁻⁶, so shifts are ~µas level.
 
+## Carmen Paper: RSG Path Integrals
+
+The **Radial Gauge Tab** implements the full physics from "Radial Scaling Gauge for Maxwell Fields" (Wrede, Casu, Bingsi):
+
+### What the Tab Computes
+
+| Quantity | Formula | Meaning |
+|----------|---------|---------|
+| **ρ(r)** | `∫ s(r) dr` | Physical radial distance |
+| **Δρ** | `∫ (s-1) dr = ∫ Ξ dr` | Excess distance vs flat |
+| **k_eff(r)** | `k · s(r)` | Effective wavenumber |
+| **Δφ** | `k ∫ Ξ dℓ` | Phase accumulation |
+| **Δt(b)** | `(1/c) ∫ Ξ dℓ` | Shapiro-like delay |
+| **α_RSG(b)** | `∫ ∇⊥ ln s dz` | Deflection from RSG |
+
+### Path Geometries
+
+- **Grazing (b)**: Line-of-sight integration with `r = √(b² + z²)`
+- **Radial**: Direct radial path `r₁ → r₂`
+
+### Key Insight: Integrals are the Meaning Bridge
+
+The tab shows not just local values (Ξ, s, D at R_ref) but **path-integrated consequences**:
+- Phase shifts Δφ affect interferometry
+- Time delays Δt affect pulsar timing
+- Deflections α affect image positions
+
+This connects the abstract gauge functions to **observable physics**.
+
+### Ξ Formula (Weak Field)
+
+```
+Ξ(r) = r_s / (2r)    [weak field, r >> r_s]
+s(r) = 1 + Ξ(r)
+D(r) = 1 / s(r)
+```
+
 ## Quick Start
 
 ### Run Tests

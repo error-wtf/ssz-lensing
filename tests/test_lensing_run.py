@@ -350,6 +350,27 @@ class TestCarmenPaperIntegrals:
         
         assert np.isclose(Delta_phi, Delta_phi_from_t, rtol=1e-10), \
             "Δφ = ω·Δt relation violated"
+    
+    def test_gauge_insets_render_data(self):
+        """Sky/Lens insets must receive finite points and circles."""
+        d = CROSS_DATA
+        run = build_run_simple(d['positions_arcsec'], d['z_L'], d['z_S'], d['theta_E'])
+        
+        # Sky inset: theta positions
+        th_GR = np.array(d['positions_arcsec'])
+        assert th_GR.shape[0] >= 4, "Need at least 4 images"
+        assert not np.any(np.isnan(th_GR)), "Sky positions have NaN"
+        
+        # Lens inset: impact parameters
+        b_GR = run['D_L'] * Mpc * th_GR * A
+        assert not np.any(np.isnan(b_GR)), "Impact parameters have NaN"
+        
+        # Circles
+        theta_E = d['theta_E']
+        b_E = run['b_E']
+        assert np.isfinite(theta_E), "θ_E must be finite"
+        assert np.isfinite(b_E), "b_E must be finite"
+        assert b_E > 0, "b_E must be positive"
 
 
 if __name__ == '__main__':

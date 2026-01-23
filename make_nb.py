@@ -329,12 +329,14 @@ def t7_sky(txt,u,tE):
     out+=f"\\n| θ_E | {tE:.4f} arcsec |\\n\\n**Der gruene Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
     return out, fig
 
-def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
+def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs,path_mode='grazing (b)',wave_nm=500):
     """Carmen Paper Tab: Full RSG physics with path integrals."""
     pos=parse(txt,u); n=len(pos)
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     r_s=2*G*M*Ms/c**2; b_E=DL*tE*A; b_E_kpc=b_E/(1e3*pc)
     cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
+    # Wave parameters
+    lam=wave_nm*1e-9; k_wave=2*np.pi/lam; omega=k_wave*c
     if n>0:
         th_GR=pos/A; r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
     else:
@@ -356,8 +358,10 @@ def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
     Delta_t=np.array([iq(delay_int,-z_max,z_max,args=(b,))[0]/c for b in b_arr])
     alpha_RSG=np.array([iq(alpha_int,-z_max,z_max,args=(b,))[0] for b in b_arr])
     alpha_PPN=2*r_s/b_arr
+    # Phase accumulation: Δφ = k ∫ Ξ(r) dℓ
+    Delta_phi=np.array([k_wave*iq(delay_int,-z_max,z_max,args=(b,))[0] for b in b_arr])
     r_vals=np.logspace(np.log10(r_s*1.5),np.log10(b_E*5),100)
-    Xi_r=r_s/(2*r_vals); s_r=1+Xi_r; D_r=1/s_r; k_eff=s_r
+    Xi_r=r_s/(2*r_vals); s_r=1+Xi_r; D_r=1/s_r; k_eff=k_wave*s_r
     r_SSZ=s_ref*r_GR; th_SSZ=np.column_stack([r_SSZ*np.cos(ang),r_SSZ*np.sin(ang)])
     b_SSZ=s_ref*b_GR; Delta_th=r_SSZ[:n_img]-r_GR[:n_img]
     pred_dth_rel=s_ref-1; meas_dth_max=np.max(np.abs(Delta_th))
@@ -516,12 +520,15 @@ with gr.Blocks(title='RSG Lensing') as demo:
         b7=gr.Button('Show Sky',variant='primary'); o7=gr.Markdown(); p7=gr.Plot()
         b7.click(t7_sky,[txt,unit,tE],[o7,p7])
     with gr.Tab('Radial Gauge'):
-        gr.Markdown('### Self-Contained Meaning Tab: Ξ → s → Δθ')
+        gr.Markdown('### Carmen Paper Tab: RSG Path Integrals & Geometric Meaning')
         with gr.Row():
             R_ref_mode=gr.Dropdown(['b_E (Einstein)','mean(b_i)','k × r_s'],value='b_E (Einstein)',label='R_ref mode')
-            k_rs=gr.Slider(1.5,100,value=10,step=0.5,label='k (for k×r_s mode)')
+            k_rs=gr.Slider(1.5,100,value=10,step=0.5,label='k (for k×r_s)')
+        with gr.Row():
+            path_mode=gr.Dropdown(['grazing (b)','radial'],value='grazing (b)',label='Path geometry')
+            wave_nm=gr.Number(500,label='λ [nm]')
         b8=gr.Button('Calc RSG',variant='primary'); o8=gr.Markdown(); p8=gr.Plot()
-        b8.click(t8,[txt,unit,zL,zS,tE,R_ref_mode,k_rs],[o8,p8])
+        b8.click(t8,[txt,unit,zL,zS,tE,R_ref_mode,k_rs,path_mode,wave_nm],[o8,p8])
 demo.launch(share=True)
 '''
 
