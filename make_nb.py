@@ -228,51 +228,63 @@ def t7_sky(txt,u,tE):
     out+=f"\\n| θ_E | {tE:.4f} arcsec |\\n\\n**Der gruene Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
     return out, fig
 
-def t8(zL,zS,tE):
+def t8(txt,u,zL,zS,tE):
+    pos=parse(txt,u); n=len(pos)
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    r_s=2*G*M*Ms/c**2  # Schwarzschild radius
-    R_E=tE*A*DL  # Einstein radius in meters
-    phi=(1+np.sqrt(5))/2  # Golden ratio
-    # Xi values at different radii
-    r_vals=np.logspace(np.log10(r_s),np.log10(R_E*10),100)
-    Xi_weak=r_s/(2*r_vals)  # Weak field Xi
-    Xi_strong=1-np.exp(-phi*r_vals/r_s)  # Strong field Xi
-    s_weak=1+Xi_weak; s_strong=1+Xi_strong
-    D_weak=1/s_weak; D_strong=1/s_strong
-    # Special radii
+    r_s=2*G*M*Ms/c**2; R_E=tE*A*DL
     Xi_RE=r_s/(2*R_E); s_RE=1+Xi_RE; D_RE=1/s_RE
-    Xi_rs=r_s/(2*r_s); s_rs=1+Xi_rs; D_rs=1/s_rs
-    # PPN lensing angle
-    alpha_xi=r_s/R_E  # Xi-only
-    alpha_ppn=2*r_s/R_E  # PPN (1+gamma) with gamma=1
+    # Image impact parameters (GR vs SSZ)
+    theta_i=np.hypot(pos[:,0],pos[:,1])/A if n>0 else np.array([0.8,0.9,1.0,1.1])*tE
+    b_i_GR=DL*theta_i*A  # GR impact params
+    b_i_SSZ=s_RE*b_i_GR  # SSZ: scaled by s(R_E)
+    Delta_b=(b_i_SSZ-b_i_GR)/R_E  # relative shift
     fig,axes=plt.subplots(2,2,figsize=(12,10))
-    # Top-left: Xi vs r
-    ax=axes[0,0]; ax.loglog(r_vals/r_s,Xi_weak,'b-',lw=2,label='Ξ weak')
-    ax.loglog(r_vals/r_s,Xi_strong,'r--',lw=2,label='Ξ strong')
-    ax.axvline(R_E/r_s,color='green',ls=':',label=f'R_E={R_E/r_s:.1e} r_s')
+    # Top-left: Ξ(r) with meaning
+    r_vals=np.logspace(np.log10(r_s),np.log10(R_E*10),100)
+    Xi_weak=r_s/(2*r_vals)
+    ax=axes[0,0]; ax.loglog(r_vals/r_s,Xi_weak,'b-',lw=2,label='Ξ(r)=r_s/(2r)')
+    ax.axvline(R_E/r_s,color='lime',ls='--',lw=2,label=f'R_E (Bilder hier!)')
+    ax.axhline(Xi_RE,color='orange',ls=':',label=f'Ξ(R_E)={Xi_RE:.2e}')
     ax.set_xlabel('r/r_s'); ax.set_ylabel('Ξ(r)'); ax.legend(); ax.grid(alpha=.3)
-    ax.set_title('Radial Scaling Gauge: Ξ(r)')
-    # Top-right: s(r) and D(r)
-    ax=axes[0,1]; ax.semilogx(r_vals/r_s,s_weak,'b-',lw=2,label='s(r) weak')
-    ax.semilogx(r_vals/r_s,D_weak,'b--',lw=2,label='D(r) weak')
-    ax.axhline(1,color='gray',ls=':'); ax.set_xlabel('r/r_s'); ax.set_ylabel('s, D')
-    ax.legend(); ax.grid(alpha=.3); ax.set_title('Scaling Factors s(r)=1+Ξ, D(r)=1/s')
-    # Bottom-left: Lensing deflection
-    ax=axes[1,0]; b_vals=np.linspace(R_E*0.5,R_E*3,50)
-    alpha_b=2*r_s/b_vals  # PPN deflection angle
-    ax.plot(b_vals/R_E,np.degrees(alpha_b)*3600,'g-',lw=2)
-    ax.axvline(1,color='red',ls='--',label='b=R_E')
-    ax.set_xlabel('b/R_E'); ax.set_ylabel('α [arcsec]'); ax.grid(alpha=.3)
-    ax.set_title('PPN Ablenkungswinkel α=(1+γ)r_s/b'); ax.legend()
-    # Bottom-right: Key values table as bar chart
-    ax=axes[1,1]; vals=[Xi_RE,s_RE,D_RE,np.degrees(alpha_ppn)*3600]
-    names=['Ξ(R_E)','s(R_E)','D(R_E)','α_PPN [as]']
-    colors=['blue','green','orange','red']
-    bars=ax.bar(names,vals,color=colors); ax.set_ylabel('Value')
-    for bar,v in zip(bars,vals): ax.text(bar.get_x()+bar.get_width()/2,bar.get_height(),f'{v:.2e}',ha='center',va='bottom',fontsize=8)
-    ax.set_title('RSG Werte am Einstein-Radius'); ax.set_yscale('log')
+    ax.set_title('Ξ(r) steuert Bildverschiebung')
+    # Top-right: s(r) → impact parameter scaling
+    s_weak=1+Xi_weak
+    ax=axes[0,1]; ax.semilogx(r_vals/r_s,s_weak,'b-',lw=2,label='s(r)=1+Ξ')
+    ax.axvline(R_E/r_s,color='lime',ls='--',lw=2)
+    ax.axhline(s_RE,color='orange',ls=':',label=f's(R_E)={s_RE:.8f}')
+    ax.set_xlabel('r/r_s'); ax.set_ylabel('s(r)'); ax.legend(); ax.grid(alpha=.3)
+    ax.set_title('s(R_E) skaliert Impact-Parameter: b_SSZ = s·b_GR')
+    # Bottom-left: GR vs SSZ sky positions
+    cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
+    ax=axes[1,0]; th=np.linspace(0,2*np.pi,100)
+    ax.plot(tE*np.cos(th),tE*np.sin(th),'gray',ls='--',lw=1,label='θ_E (GR)')
+    ax.plot(tE*s_RE*np.cos(th),tE*s_RE*np.sin(th),'lime',ls='-',lw=2,label=f'θ_E×s (SSZ)')
+    for i in range(min(n,4)):
+        ti=theta_i[i]; ang=np.arctan2(pos[i,1],pos[i,0]) if n>0 else i*np.pi/2
+        ax.scatter([ti*np.cos(ang)],[ti*np.sin(ang)],s=80,c='gray',marker='o',alpha=0.5)
+        ax.scatter([ti*s_RE*np.cos(ang)],[ti*s_RE*np.sin(ang)],s=100,c=cols[i],marker='o',edgecolors='white')
+        ax.annotate('',(ti*s_RE*np.cos(ang),ti*s_RE*np.sin(ang)),(ti*np.cos(ang),ti*np.sin(ang)),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
+    ax.set_aspect('equal'); ax.set_xlabel('θ_x [arcsec]'); ax.set_ylabel('θ_y [arcsec]')
+    ax.legend(loc='upper right'); ax.grid(alpha=.3)
+    ax.set_title('GR (grau) → SSZ (farbig): Verschiebung durch Ξ')
+    # Bottom-right: Δb/b_E bar chart
+    ax=axes[1,1]
+    x=np.arange(min(n,4)) if n>0 else np.arange(4)
+    ax.bar(x,Delta_b[:len(x)]*1e6,color=cols[:len(x)])
+    ax.set_xticks(x); ax.set_xticklabels([f'Bild {i+1}' for i in x])
+    ax.set_ylabel('Δb/b_E × 10⁶'); ax.grid(alpha=.3,axis='y')
+    ax.set_title(f'Bildverschiebung: Δb = Ξ(R_E)·b_GR')
+    ax.axhline(Xi_RE*1e6,color='red',ls='--',label=f'Ξ(R_E)×10⁶={Xi_RE*1e6:.2f}')
+    ax.legend()
     plt.tight_layout()
-    out=f"## Radial Scaling Gauge\\n\\n| Parameter | Wert |\\n|--|--|\\n| r_s | {r_s:.3e} m |\\n| R_E | {R_E:.3e} m |\\n| R_E/r_s | {R_E/r_s:.2e} |\\n| Ξ(R_E) | {Xi_RE:.2e} |\\n| s(R_E) | {s_RE:.6f} |\\n| D(R_E) | {D_RE:.6f} |\\n| α_Ξ | {np.degrees(alpha_xi)*3600:.4e} as |\\n| α_PPN | {np.degrees(alpha_ppn)*3600:.4e} as |\\n| θ_E | {tE:.4f} as |\\n\\n**Formeln:**\\n- Ξ_weak = r_s/(2r)\\n- s(r) = 1 + Ξ(r)\\n- D(r) = 1/s(r)\\n- α_PPN = (1+γ)r_s/b"
+    out=f"## Radial Scaling Gauge — Geometrische Bedeutung\\n\\n"
+    out+=f"**Kernaussage:** Am Einstein-Radius ist Ξ klein, aber sie verschiebt systematisch die Impact-Parameter und damit die Lage der Bilder.\\n\\n"
+    out+=f"| Parameter | Wert | Bedeutung |\\n|--|--|--|\\n"
+    out+=f"| Ξ(R_E) | {Xi_RE:.2e} | Skalierungsfaktor am Bildort |\\n"
+    out+=f"| s(R_E) | {s_RE:.10f} | b_SSZ = s·b_GR |\\n"
+    out+=f"| Δb/b_E | {Xi_RE:.2e} | relative Verschiebung |\\n\\n"
+    out+=f"**Wirkungskette:** Ξ(r) → s(r)=1+Ξ → b_SSZ=s·b_GR → θ_SSZ=s·θ_GR\\n\\n"
+    out+=f"**Sichtbar im Plot:** Grauer Kreis = GR, Gruener Kreis = SSZ. Pfeile zeigen Verschiebung."
     return out, fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
@@ -304,7 +316,7 @@ with gr.Blocks(title='RSG Lensing') as demo:
         b7.click(t7_sky,[txt,unit,tE],[o7,p7])
     with gr.Tab('Radial Gauge'):
         b8=gr.Button('Calc RSG',variant='primary'); o8=gr.Markdown(); p8=gr.Plot()
-        b8.click(t8,[zL,zS,tE],[o8,p8])
+        b8.click(t8,[txt,unit,zL,zS,tE],[o8,p8])
 demo.launch(share=True)
 '''
 
