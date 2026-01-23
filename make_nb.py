@@ -433,35 +433,39 @@ def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs,path_mode='grazing (b)',wave_nm=500):
     ax.legend(fontsize=7); ax.grid(alpha=.3); ax.set_title('Lens Plane: Impact circle')
     ax=fig.add_subplot(gs[2,2]); ax.axis('off')
     Dt_bE=np.interp(b_E,b_arr,Delta_t); aRSG_bE=np.interp(b_E,b_arr,np.abs(alpha_RSG)); aPPN_bE=2*r_s/b_E
-    box=f"CARMEN PAPER METRICS at R_ref={R_ref_name}\\n{'='*44}\\n"
-    box+=f"Ξ(R_ref)={Xi_ref:.4e}  s={s_ref:.8f}  D={D_ref:.8f}\\n\\n"
+    Dphi_bE=np.interp(b_E,b_arr,Delta_phi)
+    box=f"CARMEN PAPER METRICS\\n{'='*40}\\n"
+    box+=f"R_ref={R_ref_name} | Path={path_mode}\\n"
+    box+=f"λ={wave_nm:.0f}nm  k={k_wave:.2e}/m  ω={omega:.2e}/s\\n\\n"
+    box+=f"LOCAL: Ξ={Xi_ref:.4e} s={s_ref:.8f}\\n\\n"
     box+=f"PATH INTEGRALS at b_E:\\n"
-    box+=f"  Δt(b_E)   = {Dt_bE*1e6:.4f} μs\\n"
-    box+=f"  α_RSG     = {aRSG_bE:.4e} rad\\n"
-    box+=f"  α_PPN     = {aPPN_bE:.4e} rad\\n"
-    box+=f"  α_RSG/PPN = {aRSG_bE/aPPN_bE:.4f}\\n\\n"
-    box+=f"IMAGE SHIFT: Δθ/θ=s-1={pred_dth_rel:.4e}\\n"
-    box+=f"  max|Δθ|={meas_dth_max*1000:.4f} mas\\n\\nConsistency: {consist}"
+    box+=f"  Δt  = {Dt_bE*1e6:.4f} μs\\n"
+    box+=f"  Δφ  = {Dphi_bE:.4e} rad\\n"
+    box+=f"  α_RSG = {aRSG_bE:.4e} rad\\n"
+    box+=f"  α_PPN = {aPPN_bE:.4e} rad\\n\\n"
+    box+=f"SHIFT: Δθ/θ={pred_dth_rel:.4e}\\n"
+    box+=f"Consistency: {consist}"
     fc='#e8f5e9' if consist=='PASS' else '#fff3e0'; ec='green' if consist=='PASS' else 'orange'
     ax.text(0.05,0.95,box,transform=ax.transAxes,fontsize=9,va='top',ha='left',family='monospace',
             bbox=dict(boxstyle='round',facecolor=fc,edgecolor=ec,lw=2))
     # ROW 4: Wirkungskette — Carmen Paper
     ax=fig.add_subplot(gs[3,:]); ax.axis('off')
     explain=f"WIRKUNGSKETTE (Carmen Paper Effect Chain)\\n{'='*65}\\n\\n"
-    explain+=f"Ξ(r)=r_s/(2r) → s(r)=1+Ξ → dρ=s·dr → Δt=(1/c)∫s dr\\n"
-    explain+=f"                          → k_eff=k·s → Δφ=k∫Ξ dr\\n"
+    explain+=f"Ξ(r)=r_s/(2r) → s(r)=1+Ξ → dρ=s·dr → Δt=(1/c)∫Ξ dℓ\\n"
+    explain+=f"                          → k_eff=k·s → Δφ=k∫Ξ dℓ\\n"
     explain+=f"                          → α=∫∇⊥ ln s dz\\n\\n"
-    explain+=f"At b_E: Δt={Dt_bE*1e6:.2f}μs | α_RSG/α_PPN={aRSG_bE/aPPN_bE:.4f}\\n\\n"
-    explain+=f"As r→∞: Ξ→0, s→1, Δt→0, α→0 — RSG converges to flat spacetime."
+    explain+=f"At b_E (λ={wave_nm:.0f}nm): Δt={Dt_bE*1e6:.2f}μs | Δφ={Dphi_bE:.2e}rad\\n\\n"
+    explain+=f"As r→∞: Ξ→0 → s→1 → Δt,Δφ,α→0 (RSG converges to flat)"
     ax.text(0.02,0.95,explain,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',
             bbox=dict(boxstyle='round',facecolor='#f5f5f5',edgecolor='gray'))
     plt.tight_layout()
     out=f"## Radial Gauge — Carmen Paper Tab\\n\\n"
-    out+=f"**R_ref:** {R_ref_name} = {R_ref:.3e} m = {R_ref/r_s:.1f} r_s\\n\\n"
+    out+=f"**R_ref:** {R_ref_name} | **Path:** {path_mode} | **λ:** {wave_nm:.0f} nm\\n\\n"
+    out+=f"### Wave Parameters\\n| k | {k_wave:.4e} /m |\\n|--|--|\\n| ω | {omega:.4e} /s |\\n\\n"
     out+=f"### Path Integrals at b_E\\n| Quantity | Value |\\n|--|--|\\n"
-    out+=f"| Δt(b_E) | {Dt_bE*1e6:.4f} μs |\\n| α_RSG | {aRSG_bE:.4e} rad |\\n"
-    out+=f"| α_PPN | {aPPN_bE:.4e} rad |\\n| α_RSG/α_PPN | {aRSG_bE/aPPN_bE:.4f} |\\n\\n"
-    out+=f"### Local Values\\n| Ξ(R_ref) | {Xi_ref:.4e} |\\n| s(R_ref) | {s_ref:.10f} |\\n"
+    out+=f"| Δt | {Dt_bE*1e6:.4f} μs |\\n| Δφ | {Dphi_bE:.4e} rad |\\n"
+    out+=f"| α_RSG | {aRSG_bE:.4e} rad |\\n| α_PPN | {aPPN_bE:.4e} rad |\\n\\n"
+    out+=f"### Local Values at R_ref\\n| Ξ | {Xi_ref:.4e} |\\n|--|--|\\n| s | {s_ref:.10f} |\\n"
     out+=f"\\n**Consistency:** {consist}"
     return out, fig
 
