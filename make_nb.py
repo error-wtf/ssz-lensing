@@ -206,16 +206,44 @@ def t1(txt,u):
 
 def t2(txt,u):
     pos=parse(txt,u); m=morph_full(pos); c=m['ctr']; th=np.linspace(0,2*np.pi,100)
-    fig,axes=plt.subplots(1,2,figsize=(12,5)); p=pos/A
-    axes[0].scatter(p[:,0],p[:,1],s=80,c='blue',zorder=5)
-    axes[0].plot(c[0]/A+m['r_mean']/A*np.cos(th),c[1]/A+m['r_mean']/A*np.sin(th),'g--',lw=2)
-    axes[0].scatter([c[0]/A],[c[1]/A],s=150,c='red',marker='+',lw=3)
-    axes[0].set_xlabel('x [arcsec]'); axes[0].set_ylabel('y [arcsec]'); axes[0].set_aspect('equal'); axes[0].grid(alpha=.3)
-    axes[0].set_title(f"{m['type']} ({m['conf']:.0%})")
-    bars=axes[1].bar(['m=2','m=3','m=4'],[m['m2']*100,m['m3']*100,m['m4']*100],color=['orange','cyan','purple'])
-    for b,v in zip(bars,[m['m2'],m['m3'],m['m4']]): axes[1].text(b.get_x()+b.get_width()/2,b.get_height()+0.1,f'{v:.5f}',ha='center',fontsize=9)
-    axes[1].set_ylabel('Amp (x100)'); axes[1].set_title('Harmonics'); axes[1].grid(alpha=.3,axis='y'); plt.tight_layout()
-    out=f"## {m['type']} ({m['conf']:.0%})\\n| Metric | Value |\\n|--|--|\\n| r_mean | {fmt(m['r_mean'])} |\\n| scatter | {m['radial_scatter']:.4f} |\\n| az_cov | {m['az_cov']:.1%} |\\n### Harmonics\\n| Mode | Amp |\\n|--|--|\\n| m=2 | {m['m2']:.6f} |\\n| m=3 | {m['m3']:.6f} |\\n| m=4 | {m['m4']:.6f} |\\n**Notes:** {'; '.join(m['notes'])}\\n**Models:** {', '.join(m['models'])}"
+    fig=plt.figure(figsize=(16,10)); gs=fig.add_gridspec(2,3,hspace=0.3,wspace=0.3); p=pos/A
+    # Panel 1: Sky positions
+    ax=fig.add_subplot(gs[0,0])
+    ax.scatter(p[:,0],p[:,1],s=80,c='blue',zorder=5)
+    ax.plot(c[0]/A+m['r_mean']/A*np.cos(th),c[1]/A+m['r_mean']/A*np.sin(th),'g--',lw=2)
+    ax.scatter([c[0]/A],[c[1]/A],s=150,c='red',marker='+',lw=3)
+    ax.set_xlabel('x [arcsec]'); ax.set_ylabel('y [arcsec]'); ax.set_aspect('equal'); ax.grid(alpha=.3)
+    ax.set_title(f"{m['type']} ({m['conf']:.0%})")
+    # Panel 2: Harmonics bar
+    ax=fig.add_subplot(gs[0,1])
+    bars=ax.bar(['m=2','m=3','m=4'],[m['m2']*100,m['m3']*100,m['m4']*100],color=['orange','cyan','purple'])
+    for b,v in zip(bars,[m['m2'],m['m3'],m['m4']]): ax.text(b.get_x()+b.get_width()/2,b.get_height()+0.1,f'{v:.5f}',ha='center',fontsize=9)
+    ax.set_ylabel('Amp (x100)'); ax.set_title('Harmonics'); ax.grid(alpha=.3,axis='y')
+    # Panel 3: Azimuthal coverage
+    ax=fig.add_subplot(gs[0,2])
+    ax.bar(['az_cov','az_uni'],[m['az_cov']*100,m['az_uni']*100],color=['green','blue'])
+    ax.set_ylabel('%'); ax.set_title(f"Azimuthal: cov={m['az_cov']:.0%}, uni={m['az_uni']:.0%}"); ax.set_ylim(0,110); ax.grid(alpha=.3,axis='y')
+    # Panel 4: Radial scatter
+    ax=fig.add_subplot(gs[1,0])
+    rel=pos-c; r=np.hypot(rel[:,0],rel[:,1]); phi=np.arctan2(rel[:,1],rel[:,0])
+    ax.scatter(np.degrees(phi),r/A,s=60,c='blue')
+    ax.axhline(m['r_mean']/A,c='green',ls='--',lw=2,label=f"r_mean={m['r_mean']/A:.3f}\"")
+    ax.set_xlabel('Azimuth [deg]'); ax.set_ylabel('r [arcsec]'); ax.legend(); ax.grid(alpha=.3)
+    ax.set_title(f"Radial scatter={m['radial_scatter']:.4f}")
+    # Panel 5: Confidence
+    ax=fig.add_subplot(gs[1,1])
+    ax.bar(['Confidence'],[m['conf']*100],color='purple')
+    ax.set_ylabel('%'); ax.set_ylim(0,110); ax.set_title(f"{m['type']}: {m['conf']:.0%}"); ax.grid(alpha=.3,axis='y')
+    # Panel 6: Model compatibility
+    ax=fig.add_subplot(gs[1,2]); ax.axis('off')
+    box=f"MORPHOLOGY ANALYSIS\\n{'='*30}\\n\\nType: {m['type']}\\nConfidence: {m['conf']:.0%}\\n\\n"
+    box+=f"Metrics:\\n  r_mean = {m['r_mean']/A:.4f}\"\\n  scatter = {m['radial_scatter']:.4f}\\n"
+    box+=f"  az_cov = {m['az_cov']:.1%}\\n  az_uni = {m['az_uni']:.1%}\\n\\n"
+    box+=f"Compatible models:\\n  {', '.join(m['models'])}\\n\\nNotes:\\n  {chr(10).join(m['notes'])}"
+    ax.text(0.05,0.95,box,transform=ax.transAxes,fontsize=10,va='top',ha='left',family='monospace',
+            bbox=dict(boxstyle='round',facecolor='#f0f0f0',edgecolor='gray'))
+    plt.tight_layout()
+    out=f"## {m['type']} ({m['conf']:.0%})\\n| Metric | Value |\\n|--|--|\\n| r_mean | {fmt(m['r_mean'])} |\\n| scatter | {m['radial_scatter']:.4f} |\\n| az_cov | {m['az_cov']:.1%} |\\n| az_uni | {m['az_uni']:.1%} |\\n### Harmonics\\n| Mode | Amp |\\n|--|--|\\n| m=2 | {m['m2']:.6f} |\\n| m=3 | {m['m3']:.6f} |\\n| m=4 | {m['m4']:.6f} |\\n**Notes:** {'; '.join(m['notes'])}\\n**Models:** {', '.join(m['models'])}"
     return out, fig
 
 def t3(txt,u):
@@ -255,15 +283,44 @@ def t4(txt,u):
 
 def t5(zL,zS,tE):
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    Scr=c**2*DS/(4*np.pi*G*DL*DLS); RE=tE*A*DL
-    fig,axes=plt.subplots(1,2,figsize=(12,5))
-    bars=axes[0].barh(['D_L','D_S','D_LS'],[DL/Mpc,DS/Mpc,DLS/Mpc],color=['red','blue','green'])
-    axes[0].bar_label(bars,fmt='%.0f Mpc'); axes[0].set_xlabel('Distance [Mpc]'); axes[0].grid(alpha=.3,axis='x')
-    axes[0].set_title('Angular Diameter Distances')
-    axes[1].bar(['M_lens'],[np.log10(M)],color='purple')
-    axes[1].set_ylabel('log₁₀(M/M☉)'); axes[1].set_title(f'M = {M:.2e} M☉'); axes[1].grid(alpha=.3,axis='y')
+    Scr=c**2*DS/(4*np.pi*G*DL*DLS); RE=tE*A*DL; r_s=2*G*M*Ms/c**2
+    Xi_E=r_s/(2*RE); s_E=1+Xi_E; D_E=1/s_E
+    fig=plt.figure(figsize=(16,10)); gs=fig.add_gridspec(2,3,hspace=0.3,wspace=0.3)
+    # Panel 1: Distances
+    ax=fig.add_subplot(gs[0,0])
+    bars=ax.barh(['D_L','D_S','D_LS'],[DL/Mpc,DS/Mpc,DLS/Mpc],color=['red','blue','green'])
+    ax.bar_label(bars,fmt='%.0f'); ax.set_xlabel('Distance [Mpc]'); ax.grid(alpha=.3,axis='x')
+    ax.set_title('Angular Diameter Distances')
+    # Panel 2: Mass & Schwarzschild
+    ax=fig.add_subplot(gs[0,1])
+    ax.bar(['log M','log r_s'],[np.log10(M),np.log10(r_s)],color=['purple','orange'])
+    ax.set_ylabel('log₁₀'); ax.set_title(f'M={M:.1e} M☉, r_s={r_s:.1e} m'); ax.grid(alpha=.3,axis='y')
+    # Panel 3: Length scales
+    ax=fig.add_subplot(gs[0,2])
+    ax.barh(['r_s','R_E (b_E)','D_L'],[np.log10(r_s),np.log10(RE),np.log10(DL)],color=['orange','lime','red'])
+    ax.set_xlabel('log₁₀(m)'); ax.set_title('Length Scales'); ax.grid(alpha=.3,axis='x')
+    # Panel 4: RSG at Einstein radius
+    ax=fig.add_subplot(gs[1,0])
+    ax.bar(['Ξ(b_E)','s-1','1-D'],[Xi_E,(s_E-1),(1-D_E)],color=['blue','green','red'])
+    ax.set_ylabel('Value'); ax.set_title(f'RSG at b_E: Ξ={Xi_E:.2e}'); ax.grid(alpha=.3,axis='y')
+    ax.ticklabel_format(style='sci',axis='y',scilimits=(0,0))
+    # Panel 5: Σ_cr visualization
+    ax=fig.add_subplot(gs[1,1])
+    ax.bar(['Σ_cr'],[np.log10(Scr)],color=['cyan'])
+    ax.set_ylabel('log₁₀(kg/m²)'); ax.set_title(f'Critical Σ = {Scr:.2e} kg/m²'); ax.grid(alpha=.3,axis='y')
+    # Panel 6: Ratio diagram
+    ax=fig.add_subplot(gs[1,2])
+    ratios=[RE/r_s,DL/RE,DS/DL]; labels=['b_E/r_s','D_L/b_E','D_S/D_L']
+    ax.barh(labels,[np.log10(r) for r in ratios],color=['lime','red','blue'])
+    ax.set_xlabel('log₁₀(ratio)'); ax.set_title('Scale Ratios'); ax.grid(alpha=.3,axis='x')
     plt.tight_layout()
-    out=f"## Cosmology\\n| Param | Value |\\n|--|--|\\n| z_L | {zL:.4f} |\\n| z_S | {zS:.4f} |\\n| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n| θ_E | {tE:.4f}\\\" |\\n| R_E | {RE/1e3:.2f} kpc |\\n| Σ_cr | {Scr:.2e} kg/m² |\\n| **M** | **{M:.2e} M☉** |"
+    out=f"## Cosmology & Scales\\n| Param | Value |\\n|--|--|\\n"
+    out+=f"| z_L | {zL:.4f} |\\n| z_S | {zS:.4f} |\\n"
+    out+=f"| D_L | {DL/Mpc:.1f} Mpc |\\n| D_S | {DS/Mpc:.1f} Mpc |\\n| D_LS | {DLS/Mpc:.1f} Mpc |\\n"
+    out+=f"| θ_E | {tE:.4f}\" |\\n| R_E (b_E) | {RE/(1e3*pc):.2f} kpc |\\n"
+    out+=f"| Σ_cr | {Scr:.2e} kg/m² |\\n| **M** | **{M:.2e} M☉** |\\n"
+    out+=f"| r_s | {r_s:.2e} m |\\n| b_E/r_s | {RE/r_s:.2e} |\\n"
+    out+=f"### RSG at b_E\\n| Ξ | {Xi_E:.4e} |\\n|--|--|\\n| s | {s_E:.10f} |\\n| D | {D_E:.10f} |"
     return out, fig
 
 def t6(txt,u,zL,zS,tE):
