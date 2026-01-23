@@ -231,60 +231,79 @@ def t7_sky(txt,u,tE):
 def t8(txt,u,zL,zS,tE):
     pos=parse(txt,u); n=len(pos)
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
-    r_s=2*G*M*Ms/c**2; R_E=tE*A*DL
-    Xi_RE=r_s/(2*R_E); s_RE=1+Xi_RE; D_RE=1/s_RE
-    # Image impact parameters (GR vs SSZ)
-    theta_i=np.hypot(pos[:,0],pos[:,1])/A if n>0 else np.array([0.8,0.9,1.0,1.1])*tE
-    b_i_GR=DL*theta_i*A  # GR impact params
-    b_i_SSZ=s_RE*b_i_GR  # SSZ: scaled by s(R_E)
-    Delta_b=(b_i_SSZ-b_i_GR)/R_E  # relative shift
-    fig,axes=plt.subplots(2,2,figsize=(12,10))
-    # Top-left: Ξ(r) with meaning
-    r_vals=np.logspace(np.log10(r_s),np.log10(R_E*10),100)
-    Xi_weak=r_s/(2*r_vals)
-    ax=axes[0,0]; ax.loglog(r_vals/r_s,Xi_weak,'b-',lw=2,label='Ξ(r)=r_s/(2r)')
-    ax.axvline(R_E/r_s,color='lime',ls='--',lw=2,label=f'R_E (Bilder hier!)')
-    ax.axhline(Xi_RE,color='orange',ls=':',label=f'Ξ(R_E)={Xi_RE:.2e}')
-    ax.set_xlabel('r/r_s'); ax.set_ylabel('Ξ(r)'); ax.legend(); ax.grid(alpha=.3)
-    ax.set_title('Ξ(r) steuert Bildverschiebung')
-    # Top-right: s(r) → impact parameter scaling
-    s_weak=1+Xi_weak
-    ax=axes[0,1]; ax.semilogx(r_vals/r_s,s_weak,'b-',lw=2,label='s(r)=1+Ξ')
-    ax.axvline(R_E/r_s,color='lime',ls='--',lw=2)
-    ax.axhline(s_RE,color='orange',ls=':',label=f's(R_E)={s_RE:.8f}')
-    ax.set_xlabel('r/r_s'); ax.set_ylabel('s(r)'); ax.legend(); ax.grid(alpha=.3)
-    ax.set_title('s(R_E) skaliert Impact-Parameter: b_SSZ = s·b_GR')
-    # Bottom-left: GR vs SSZ sky positions
+    r_s=2*G*M*Ms/c**2; b_E=DL*tE*A; b_E_kpc=b_E/(1e3*pc)
+    Xi_bE=r_s/(2*b_E); s_bE=1+Xi_bE
     cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    ax=axes[1,0]; th=np.linspace(0,2*np.pi,100)
-    ax.plot(tE*np.cos(th),tE*np.sin(th),'gray',ls='--',lw=1,label='θ_E (GR)')
-    ax.plot(tE*s_RE*np.cos(th),tE*s_RE*np.sin(th),'lime',ls='-',lw=2,label=f'θ_E×s (SSZ)')
-    for i in range(min(n,4)):
-        ti=theta_i[i]; ang=np.arctan2(pos[i,1],pos[i,0]) if n>0 else i*np.pi/2
-        ax.scatter([ti*np.cos(ang)],[ti*np.sin(ang)],s=80,c='gray',marker='o',alpha=0.5)
-        ax.scatter([ti*s_RE*np.cos(ang)],[ti*s_RE*np.sin(ang)],s=100,c=cols[i],marker='o',edgecolors='white')
-        ax.annotate('',(ti*s_RE*np.cos(ang),ti*s_RE*np.sin(ang)),(ti*np.cos(ang),ti*np.sin(ang)),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
+    # GR image positions (from input or default cross)
+    if n>0:
+        th_GR=pos/A; r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
+    else:
+        ang=np.array([0.3,1.8,3.4,4.9]); r_GR=np.array([0.85,0.92,1.05,0.98])*tE
+        th_GR=np.column_stack([r_GR*np.cos(ang),r_GR*np.sin(ang)])
+    n_img=min(len(r_GR),4)
+    # SSZ: radial scaling θ_SSZ = s(b_E) * θ_GR
+    r_SSZ=s_bE*r_GR; th_SSZ=np.column_stack([r_SSZ*np.cos(ang),r_SSZ*np.sin(ang)])
+    b_GR=DL*r_GR[:n_img]*A; b_SSZ=s_bE*b_GR
+    Delta_th=r_SSZ[:n_img]-r_GR[:n_img]; Delta_b=b_SSZ-b_GR
+    R_fit=np.mean(r_GR[:n_img]); resid_GR=r_GR[:n_img]-R_fit
+    rms_th=np.sqrt(np.mean(Delta_th**2))*1000  # mas
+    fig,axes=plt.subplots(2,2,figsize=(14,12))
+    # PANEL 1: Observer Sky - GR vs SSZ with arrows
+    ax=axes[0,0]; circ=np.linspace(0,2*np.pi,100)
+    ax.plot(tE*np.cos(circ),tE*np.sin(circ),'gray',ls='--',lw=1.5,label=f'θ_E={tE:.3f}"')
+    ax.axhline(0,color='gray',lw=0.3); ax.axvline(0,color='gray',lw=0.3)
+    for i in range(n_img):
+        gx,gy=th_GR[i]; sx,sy=th_SSZ[i]
+        ax.scatter([gx],[gy],s=80,c='gray',marker='o',alpha=0.5,zorder=5)
+        ax.scatter([sx],[sy],s=100,c=cols[i],marker='o',edgecolors='white',lw=2,zorder=6)
+        ax.annotate('',(sx,sy),(gx,gy),arrowprops=dict(arrowstyle='->',color=cols[i],lw=2))
+        ax.text(sx*1.08,sy*1.08,f'{i+1}',fontsize=10,color=cols[i],weight='bold')
+    ax.scatter([0],[0],s=60,c='red',marker='+',lw=2,zorder=10,label='Lens')
     ax.set_aspect('equal'); ax.set_xlabel('θ_x [arcsec]'); ax.set_ylabel('θ_y [arcsec]')
     ax.legend(loc='upper right'); ax.grid(alpha=.3)
-    ax.set_title('GR (grau) → SSZ (farbig): Verschiebung durch Ξ')
-    # Bottom-right: Δb/b_E bar chart
-    ax=axes[1,1]
-    x=np.arange(min(n,4)) if n>0 else np.arange(4)
-    ax.bar(x,Delta_b[:len(x)]*1e6,color=cols[:len(x)])
-    ax.set_xticks(x); ax.set_xticklabels([f'Bild {i+1}' for i in x])
-    ax.set_ylabel('Δb/b_E × 10⁶'); ax.grid(alpha=.3,axis='y')
-    ax.set_title(f'Bildverschiebung: Δb = Ξ(R_E)·b_GR')
-    ax.axhline(Xi_RE*1e6,color='red',ls='--',label=f'Ξ(R_E)×10⁶={Xi_RE*1e6:.2f}')
-    ax.legend()
+    ax.set_title('Panel 1: Observer Sky — GR (gray) → SSZ (color)')
+    # PANEL 2: Lens Plane - Impact Parameters
+    ax=axes[0,1]
+    ax.plot(b_E_kpc*np.cos(circ),b_E_kpc*np.sin(circ),'gray',ls='--',lw=1.5,label=f'b_E={b_E_kpc:.2f} kpc')
+    ax.plot(b_E_kpc*s_bE*np.cos(circ),b_E_kpc*s_bE*np.sin(circ),'lime',ls='-',lw=2,label=f'b_E×s={b_E_kpc*s_bE:.2f} kpc')
+    for i in range(n_img):
+        bx,by=b_GR[i]/(1e3*pc)*np.cos(ang[i]),b_GR[i]/(1e3*pc)*np.sin(ang[i])
+        sx,sy=b_SSZ[i]/(1e3*pc)*np.cos(ang[i]),b_SSZ[i]/(1e3*pc)*np.sin(ang[i])
+        ax.scatter([bx],[by],s=80,c='gray',marker='s',alpha=0.5)
+        ax.scatter([sx],[sy],s=100,c=cols[i],marker='s',edgecolors='white',lw=2)
+        ax.annotate('',(sx,sy),(bx,by),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
+    ax.scatter([0],[0],s=80,c='red',marker='x',lw=3,zorder=10,label='Lens center')
+    ax.set_aspect('equal'); ax.set_xlabel('x [kpc]'); ax.set_ylabel('y [kpc]')
+    ax.legend(loc='upper right'); ax.grid(alpha=.3)
+    ax.set_title('Panel 2: Lens Plane — Impact circle (NOT Einstein ring!)')
+    # PANEL 3: Radial residual vs angle
+    ax=axes[1,0]; ang_deg=np.degrees(ang[:n_img])
+    ax.bar(ang_deg-5,resid_GR*1000,width=8,color='gray',alpha=0.6,label='GR residual')
+    ax.bar(ang_deg+5,(r_SSZ[:n_img]-R_fit*s_bE)*1000,width=8,color='lime',alpha=0.8,label='SSZ residual')
+    ax.axhline(0,color='black',lw=1)
+    ax.set_xlabel('Angle [deg]'); ax.set_ylabel('r - R_fit [mas]')
+    ax.legend(); ax.grid(alpha=.3)
+    ax.set_title('Panel 3: Radial residual vs angle (Cross signature)')
+    # PANEL 4: Coupled metrics - the meaning!
+    ax=axes[1,1]; ax.axis('off')
+    txt_out=f"Panel 4: SSZ/RSG Metrics at b_E\\n{'='*40}\\n\\n"
+    txt_out+=f"Ξ(b_E) = r_s/(2b_E) = {Xi_bE:.3e}\\n"
+    txt_out+=f"s(b_E) = 1 + Ξ     = {s_bE:.10f}\\n"
+    txt_out+=f"Δb/b   = s - 1     = {Xi_bE:.3e}\\n"
+    txt_out+=f"Δθ/θ   = s - 1     = {Xi_bE:.3e}\\n\\n"
+    txt_out+=f"{'='*40}\\nPredicted vs Measured\\n{'='*40}\\n"
+    txt_out+=f"Predicted |Δθ|_max = Ξ × θ_E = {Xi_bE*tE*1000:.4f} mas\\n"
+    txt_out+=f"Measured  |Δθ|_max           = {np.max(np.abs(Delta_th))*1000:.4f} mas\\n"
+    txt_out+=f"RMS Δθ                       = {rms_th:.4f} mas\\n\\n"
+    txt_out+=f"{'='*40}\\nWirkungskette\\n{'='*40}\\n"
+    txt_out+=f"Ξ(r) → s(r)=1+Ξ → b_SSZ=s·b_GR → θ_SSZ=s·θ_GR"
+    ax.text(0.05,0.95,txt_out,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#f0f0f0',edgecolor='gray'))
     plt.tight_layout()
-    out=f"## Radial Scaling Gauge — Geometrische Bedeutung\\n\\n"
-    out+=f"**Kernaussage:** Am Einstein-Radius ist Ξ klein, aber sie verschiebt systematisch die Impact-Parameter und damit die Lage der Bilder.\\n\\n"
-    out+=f"| Parameter | Wert | Bedeutung |\\n|--|--|--|\\n"
-    out+=f"| Ξ(R_E) | {Xi_RE:.2e} | Skalierungsfaktor am Bildort |\\n"
-    out+=f"| s(R_E) | {s_RE:.10f} | b_SSZ = s·b_GR |\\n"
-    out+=f"| Δb/b_E | {Xi_RE:.2e} | relative Verschiebung |\\n\\n"
-    out+=f"**Wirkungskette:** Ξ(r) → s(r)=1+Ξ → b_SSZ=s·b_GR → θ_SSZ=s·θ_GR\\n\\n"
-    out+=f"**Sichtbar im Plot:** Grauer Kreis = GR, Gruener Kreis = SSZ. Pfeile zeigen Verschiebung."
+    out=f"## RSG 4-Panel Dashboard\\n\\n"
+    out+=f"| Metric | Wert |\\n|--|--|\\n"
+    out+=f"| Ξ(b_E) | {Xi_bE:.3e} |\\n| s(b_E) | {s_bE:.10f} |\\n"
+    out+=f"| Δθ/θ = Δb/b | {Xi_bE:.3e} |\\n| RMS Δθ | {rms_th:.4f} mas |\\n"
+    out+=f"| max Δθ | {np.max(np.abs(Delta_th))*1000:.4f} mas |\\n"
     return out, fig
 
 with gr.Blocks(title='RSG Lensing') as demo:
