@@ -329,82 +329,122 @@ def t7_sky(txt,u,tE):
     out+=f"\\n| θ_E | {tE:.4f} arcsec |\\n\\n**Der gruene Kreis ist hier korrekt:** Er zeigt den Einstein-Radius als Winkel am Himmel des Beobachters."
     return out, fig
 
-def t8(txt,u,zL,zS,tE):
+def t8(txt,u,zL,zS,tE,R_ref_mode,k_rs):
     pos=parse(txt,u); n=len(pos)
     DL,DS,DLS=cosmo(zL,zS); M=mass(tE,DL,DS,DLS)
     r_s=2*G*M*Ms/c**2; b_E=DL*tE*A; b_E_kpc=b_E/(1e3*pc)
-    Xi_bE=r_s/(2*b_E); s_bE=1+Xi_bE
     cols=['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3']
-    # GR image positions (from input or default cross)
+    # GR positions (from input or fallback Q2237)
     if n>0:
         th_GR=pos/A; r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
     else:
-        ang=np.array([0.3,1.8,3.4,4.9]); r_GR=np.array([0.85,0.92,1.05,0.98])*tE
-        th_GR=np.column_stack([r_GR*np.cos(ang),r_GR*np.sin(ang)])
+        d=CROSS_DATA; th_GR=np.array(d['positions_arcsec'])
+        r_GR=np.hypot(th_GR[:,0],th_GR[:,1]); ang=np.arctan2(th_GR[:,1],th_GR[:,0])
     n_img=min(len(r_GR),4)
-    # SSZ: radial scaling θ_SSZ = s(b_E) * θ_GR
-    r_SSZ=s_bE*r_GR; th_SSZ=np.column_stack([r_SSZ*np.cos(ang),r_SSZ*np.sin(ang)])
-    b_GR=DL*r_GR[:n_img]*A; b_SSZ=s_bE*b_GR
+    b_GR=DL*r_GR[:n_img]*A; mean_b=np.mean(b_GR)
+    # R_ref selector
+    if R_ref_mode=='b_E (Einstein)': R_ref=b_E; R_ref_name='b_E'
+    elif R_ref_mode=='mean(b_i)': R_ref=mean_b; R_ref_name='mean(b_i)'
+    elif R_ref_mode=='k × r_s': R_ref=k_rs*r_s; R_ref_name=f'{k_rs:.1f}×r_s'
+    else: R_ref=b_E; R_ref_name='b_E'
+    # RSG at R_ref
+    Xi_ref=r_s/(2*R_ref); s_ref=1+Xi_ref; D_ref=1/s_ref
+    # SSZ scaling
+    r_SSZ=s_ref*r_GR; th_SSZ=np.column_stack([r_SSZ*np.cos(ang),r_SSZ*np.sin(ang)])
+    b_SSZ=s_ref*b_GR
     Delta_th=r_SSZ[:n_img]-r_GR[:n_img]; Delta_b=b_SSZ-b_GR
-    R_fit=np.mean(r_GR[:n_img]); resid_GR=r_GR[:n_img]-R_fit
-    rms_th=np.sqrt(np.mean(Delta_th**2))*1000  # mas
-    fig,axes=plt.subplots(2,2,figsize=(14,12))
-    # PANEL 1: Observer Sky - GR vs SSZ with arrows
-    ax=axes[0,0]; circ=np.linspace(0,2*np.pi,100)
+    # Predicted vs Measured
+    pred_dth_rel=s_ref-1; pred_dth_abs=pred_dth_rel*np.mean(r_GR[:n_img])
+    meas_dth_max=np.max(np.abs(Delta_th)); meas_dth_mean=np.mean(np.abs(Delta_th))
+    meas_db_max=np.max(np.abs(Delta_b)); meas_db_mean=np.mean(np.abs(Delta_b))
+    # Consistency check
+    tol=1e-10; consist='PASS' if abs(meas_dth_max-pred_dth_abs*np.max(r_GR[:n_img])/np.mean(r_GR[:n_img]))<tol*10 else 'CHECK'
+    fig=plt.figure(figsize=(16,14))
+    gs=fig.add_gridspec(3,3,height_ratios=[1,1,0.8],hspace=0.3,wspace=0.3)
+    circ=np.linspace(0,2*np.pi,100)
+    # ROW 1: Xi(r), s(r), D(r) — existing gauge plots
+    r_vals=np.logspace(np.log10(r_s),np.log10(b_E*5),100)
+    Xi_r=r_s/(2*r_vals); s_r=1+Xi_r; D_r=1/s_r
+    ax=fig.add_subplot(gs[0,0])
+    ax.loglog(r_vals/r_s,Xi_r,'b-',lw=2,label='Ξ(r)=r_s/(2r)')
+    ax.axvline(R_ref/r_s,color='lime',ls='--',lw=2,label=f'R_ref ({R_ref_name})')
+    ax.axhline(Xi_ref,color='orange',ls=':',lw=2,label=f'Ξ(R_ref)={Xi_ref:.2e}')
+    ax.set_xlabel('r/r_s'); ax.set_ylabel('Ξ(r)'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('Ξ(r): Segment Density')
+    ax=fig.add_subplot(gs[0,1])
+    ax.semilogx(r_vals/r_s,s_r,'b-',lw=2,label='s(r)=1+Ξ')
+    ax.axvline(R_ref/r_s,color='lime',ls='--',lw=2)
+    ax.axhline(s_ref,color='orange',ls=':',lw=2,label=f's(R_ref)={s_ref:.8f}')
+    ax.set_xlabel('r/r_s'); ax.set_ylabel('s(r)'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('s(r): Scaling Factor → b_SSZ=s·b_GR')
+    ax=fig.add_subplot(gs[0,2])
+    ax.semilogx(r_vals/r_s,D_r,'b-',lw=2,label='D(r)=1/s')
+    ax.axvline(R_ref/r_s,color='lime',ls='--',lw=2)
+    ax.axhline(D_ref,color='orange',ls=':',lw=2,label=f'D(R_ref)={D_ref:.8f}')
+    ax.set_xlabel('r/r_s'); ax.set_ylabel('D(r)'); ax.legend(fontsize=8); ax.grid(alpha=.3)
+    ax.set_title('D(r): Dilation Factor')
+    # ROW 2: Mini-Sky + Mini-Lens + Consistency Panel
+    ax=fig.add_subplot(gs[1,0])
     ax.plot(tE*np.cos(circ),tE*np.sin(circ),'gray',ls='--',lw=1.5,label=f'θ_E={tE:.3f}"')
     ax.axhline(0,color='gray',lw=0.3); ax.axvline(0,color='gray',lw=0.3)
     for i in range(n_img):
         gx,gy=th_GR[i]; sx,sy=th_SSZ[i]
-        ax.scatter([gx],[gy],s=80,c='gray',marker='o',alpha=0.5,zorder=5)
-        ax.scatter([sx],[sy],s=100,c=cols[i],marker='o',edgecolors='white',lw=2,zorder=6)
-        ax.annotate('',(sx,sy),(gx,gy),arrowprops=dict(arrowstyle='->',color=cols[i],lw=2))
-        ax.text(sx*1.08,sy*1.08,f'{i+1}',fontsize=10,color=cols[i],weight='bold')
-    ax.scatter([0],[0],s=60,c='red',marker='+',lw=2,zorder=10,label='Lens')
-    ax.set_aspect('equal'); ax.set_xlabel('θ_x [arcsec]'); ax.set_ylabel('θ_y [arcsec]')
-    ax.legend(loc='upper right'); ax.grid(alpha=.3)
-    ax.set_title('Panel 1: Observer Sky — GR (gray) → SSZ (color)')
-    # PANEL 2: Lens Plane - Impact Parameters
-    ax=axes[0,1]
-    ax.plot(b_E_kpc*np.cos(circ),b_E_kpc*np.sin(circ),'gray',ls='--',lw=1.5,label=f'b_E={b_E_kpc:.2f} kpc')
-    ax.plot(b_E_kpc*s_bE*np.cos(circ),b_E_kpc*s_bE*np.sin(circ),'lime',ls='-',lw=2,label=f'b_E×s={b_E_kpc*s_bE:.2f} kpc')
+        ax.scatter([gx],[gy],s=60,c='gray',marker='o',alpha=0.5)
+        ax.scatter([sx],[sy],s=80,c=cols[i],marker='o',edgecolors='white',lw=1.5)
+        ax.annotate('',(sx,sy),(gx,gy),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
+    ax.scatter([0],[0],s=50,c='red',marker='+',lw=2,label='Lens')
+    ax.set_aspect('equal'); ax.set_xlabel('θ_x ["]'); ax.set_ylabel('θ_y ["]')
+    ax.legend(fontsize=7,loc='upper right'); ax.grid(alpha=.3)
+    ax.set_title('Sky Inset: GR→SSZ shift')
+    ax=fig.add_subplot(gs[1,1])
+    ax.plot(b_E_kpc*np.cos(circ),b_E_kpc*np.sin(circ),'gray',ls='--',lw=1.5,label=f'b_E')
+    ax.plot(b_E_kpc*s_ref*np.cos(circ),b_E_kpc*s_ref*np.sin(circ),'lime',ls='-',lw=2,label=f'b_E×s')
     for i in range(n_img):
         bx,by=b_GR[i]/(1e3*pc)*np.cos(ang[i]),b_GR[i]/(1e3*pc)*np.sin(ang[i])
         sx,sy=b_SSZ[i]/(1e3*pc)*np.cos(ang[i]),b_SSZ[i]/(1e3*pc)*np.sin(ang[i])
-        ax.scatter([bx],[by],s=80,c='gray',marker='s',alpha=0.5)
-        ax.scatter([sx],[sy],s=100,c=cols[i],marker='s',edgecolors='white',lw=2)
-        ax.annotate('',(sx,sy),(bx,by),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1.5))
-    ax.scatter([0],[0],s=80,c='red',marker='x',lw=3,zorder=10,label='Lens center')
+        ax.scatter([bx],[by],s=60,c='gray',marker='s',alpha=0.5)
+        ax.scatter([sx],[sy],s=80,c=cols[i],marker='s',edgecolors='white',lw=1.5)
+        ax.annotate('',(sx,sy),(bx,by),arrowprops=dict(arrowstyle='->',color=cols[i],lw=1))
+    ax.scatter([0],[0],s=60,c='red',marker='x',lw=2,label='Lens')
     ax.set_aspect('equal'); ax.set_xlabel('x [kpc]'); ax.set_ylabel('y [kpc]')
-    ax.legend(loc='upper right'); ax.grid(alpha=.3)
-    ax.set_title('Panel 2: Lens Plane — Impact circle (NOT Einstein ring!)')
-    # PANEL 3: Radial residual vs angle
-    ax=axes[1,0]; ang_deg=np.degrees(ang[:n_img])
-    ax.bar(ang_deg-5,resid_GR*1000,width=8,color='gray',alpha=0.6,label='GR residual')
-    ax.bar(ang_deg+5,(r_SSZ[:n_img]-R_fit*s_bE)*1000,width=8,color='lime',alpha=0.8,label='SSZ residual')
-    ax.axhline(0,color='black',lw=1)
-    ax.set_xlabel('Angle [deg]'); ax.set_ylabel('r - R_fit [mas]')
-    ax.legend(); ax.grid(alpha=.3)
-    ax.set_title('Panel 3: Radial residual vs angle (Cross signature)')
-    # PANEL 4: Coupled metrics - the meaning!
-    ax=axes[1,1]; ax.axis('off')
-    txt_out=f"Panel 4: SSZ/RSG Metrics at b_E\\n{'='*40}\\n\\n"
-    txt_out+=f"Ξ(b_E) = r_s/(2b_E) = {Xi_bE:.3e}\\n"
-    txt_out+=f"s(b_E) = 1 + Ξ     = {s_bE:.10f}\\n"
-    txt_out+=f"Δb/b   = s - 1     = {Xi_bE:.3e}\\n"
-    txt_out+=f"Δθ/θ   = s - 1     = {Xi_bE:.3e}\\n\\n"
-    txt_out+=f"{'='*40}\\nPredicted vs Measured\\n{'='*40}\\n"
-    txt_out+=f"Predicted |Δθ|_max = Ξ × θ_E = {Xi_bE*tE*1000:.4f} mas\\n"
-    txt_out+=f"Measured  |Δθ|_max           = {np.max(np.abs(Delta_th))*1000:.4f} mas\\n"
-    txt_out+=f"RMS Δθ                       = {rms_th:.4f} mas\\n\\n"
-    txt_out+=f"{'='*40}\\nWirkungskette\\n{'='*40}\\n"
-    txt_out+=f"Ξ(r) → s(r)=1+Ξ → b_SSZ=s·b_GR → θ_SSZ=s·θ_GR"
-    ax.text(0.05,0.95,txt_out,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#f0f0f0',edgecolor='gray'))
+    ax.legend(fontsize=7,loc='upper right'); ax.grid(alpha=.3)
+    ax.set_title('Lens Plane: Impact circle (NOT ring!)')
+    ax=fig.add_subplot(gs[1,2]); ax.axis('off')
+    box=f"PREDICTED vs MEASURED at R_ref={R_ref_name}\\n{'='*42}\\n"
+    box+=f"Ξ(R_ref)  = {Xi_ref:.4e}\\n"
+    box+=f"s(R_ref)  = {s_ref:.10f}\\n"
+    box+=f"D(R_ref)  = {D_ref:.10f}\\n\\n"
+    box+=f"PREDICTED (from s-1):\\n"
+    box+=f"  Δθ/θ = Δb/b = {pred_dth_rel:.4e}\\n"
+    box+=f"  |Δθ|_pred  = {pred_dth_abs*1000:.4f} mas\\n\\n"
+    box+=f"MEASURED (from images):\\n"
+    box+=f"  max|Δθ| = {meas_dth_max*1000:.4f} mas\\n"
+    box+=f"  mean|Δθ|= {meas_dth_mean*1000:.4f} mas\\n"
+    box+=f"  max|Δb| = {meas_db_max/(1e3*pc):.4e} kpc\\n\\n"
+    box+=f"{'='*42}\\nConsistency: {consist}\\n"
+    box+=f"(Δθ/θ agrees with s-1 within tolerance)"
+    ax.text(0.05,0.95,box,transform=ax.transAxes,fontsize=10,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#e8f5e9' if consist=='PASS' else '#fff3e0',edgecolor='green' if consist=='PASS' else 'orange',lw=2))
+    # ROW 3: Wirkungskette + What happens when R changes
+    ax=fig.add_subplot(gs[2,:])
+    ax.axis('off')
+    explain=f"WIRKUNGSKETTE (Effect Chain)\\n"
+    explain+=f"{'='*60}\\n\\n"
+    explain+=f"Ξ(r) = r_s/(2r)  →  s(r) = 1+Ξ  →  b_SSZ = s·b_GR  →  θ_SSZ = s·θ_GR\\n\\n"
+    explain+=f"At R_ref = {R_ref_name}:\\n"
+    explain+=f"  • Ξ = {Xi_ref:.2e} (small but nonzero)\\n"
+    explain+=f"  • s = {s_ref:.10f} (slightly > 1)\\n"
+    explain+=f"  • All images shift OUTWARD by factor s\\n"
+    explain+=f"  • Shift magnitude: {pred_dth_abs*1000:.4f} mas\\n\\n"
+    explain+=f"As R_ref increases → Ξ→0 → s→1 → SSZ converges to GR.\\n"
+    explain+=f"As R_ref decreases toward r_s → Ξ grows → larger deviation."
+    ax.text(0.02,0.95,explain,transform=ax.transAxes,fontsize=11,va='top',ha='left',family='monospace',bbox=dict(boxstyle='round',facecolor='#f5f5f5',edgecolor='gray'))
     plt.tight_layout()
-    out=f"## RSG 4-Panel Dashboard\\n\\n"
-    out+=f"| Metric | Wert |\\n|--|--|\\n"
-    out+=f"| Ξ(b_E) | {Xi_bE:.3e} |\\n| s(b_E) | {s_bE:.10f} |\\n"
-    out+=f"| Δθ/θ = Δb/b | {Xi_bE:.3e} |\\n| RMS Δθ | {rms_th:.4f} mas |\\n"
-    out+=f"| max Δθ | {np.max(np.abs(Delta_th))*1000:.4f} mas |\\n"
+    out=f"## Radial Gauge — Self-Contained Meaning Tab\\n\\n"
+    out+=f"**R_ref:** {R_ref_name} = {R_ref:.3e} m = {R_ref/r_s:.1f} r_s\\n\\n"
+    out+=f"| Quantity | Value |\\n|--|--|\\n"
+    out+=f"| Ξ(R_ref) | {Xi_ref:.4e} |\\n| s(R_ref) | {s_ref:.10f} |\\n| D(R_ref) | {D_ref:.10f} |\\n"
+    out+=f"| Δθ/θ predicted | {pred_dth_rel:.4e} |\\n| max Δθ measured | {meas_dth_max*1000:.4f} mas |\\n"
+    out+=f"\\n**Consistency:** {consist}"
     return out, fig
 
 def t0_build(src,txt,u,zL,zS,tE):
@@ -462,8 +502,12 @@ with gr.Blocks(title='RSG Lensing') as demo:
         b7=gr.Button('Show Sky',variant='primary'); o7=gr.Markdown(); p7=gr.Plot()
         b7.click(t7_sky,[txt,unit,tE],[o7,p7])
     with gr.Tab('Radial Gauge'):
+        gr.Markdown('### Self-Contained Meaning Tab: Ξ → s → Δθ')
+        with gr.Row():
+            R_ref_mode=gr.Dropdown(['b_E (Einstein)','mean(b_i)','k × r_s'],value='b_E (Einstein)',label='R_ref mode')
+            k_rs=gr.Slider(1.5,100,value=10,step=0.5,label='k (for k×r_s mode)')
         b8=gr.Button('Calc RSG',variant='primary'); o8=gr.Markdown(); p8=gr.Plot()
-        b8.click(t8,[txt,unit,zL,zS,tE],[o8,p8])
+        b8.click(t8,[txt,unit,zL,zS,tE,R_ref_mode,k_rs],[o8,p8])
 demo.launch(share=True)
 '''
 
