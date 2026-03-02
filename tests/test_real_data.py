@@ -411,7 +411,7 @@ def test_synthetic_random(n_configs=50):
     return success_rate == 100, {'success_rate': success_rate, 'max_residuals': max_residuals}
 
 
-def test_real_lens(name, data):
+def _run_real_lens(name, data):
     """Test a real lens system."""
     print(f"\n{'-'*60}")
     print(f"Real Lens: {name} ({data['name']})")
@@ -481,7 +481,7 @@ def test_real_data():
     successes = 0
     
     for name, data in REAL_LENSES.items():
-        success, sol = test_real_lens(name, data)
+        success, sol = _run_real_lens(name, data)
         results[name] = {'success': success, 'solution': sol}
         if success:
             successes += 1

@@ -64,7 +64,7 @@ def bisection(
         if np.isnan(fm):
             return mid, False
         
-        if abs(fm) < tol or (b - a) / 2 < tol:
+        if abs(fm) < tol or abs(b - a) / 2 < tol:
             return mid, True
         
         if fm < 0:

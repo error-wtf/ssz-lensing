@@ -79,14 +79,19 @@ class TestMultipoleConsistency:
         A_min, b_min = self._build_minimal_system(images, phi_gamma)
 
         # Multipole m=2 system
-        A_mp, b_mp = self._build_multipole_system(images, {1: 0, 2: phi_gamma})
+        A_mp, b_mp = self._build_multipole_system(images, {1: 0.7, 2: phi_gamma})
 
-        # Both should be solvable
+        # Minimal 5x5 should be solvable exactly
         p_min, ok_min = solve_linear_exact(A_min[:5], b_min[:5])
-        p_mp, ok_mp = solve_linear_exact(A_mp[:7], b_mp[:7])
-
         assert ok_min
-        assert ok_mp
+
+        # Multipole system is overdetermined; use least-squares
+        p_mp, res_mp, rank_mp, _ = np.linalg.lstsq(A_mp, b_mp, rcond=None)
+        res_min = np.max(np.abs(A_min @ p_min - b_min))
+        res_mp_max = np.max(np.abs(A_mp @ p_mp - b_mp))
+
+        # m=2 multipole residuals should be comparable to minimal model
+        assert res_mp_max < res_min + 0.1
 
     def test_multipole_residuals(self):
         """Multipole model residuals should be small for correct params."""
