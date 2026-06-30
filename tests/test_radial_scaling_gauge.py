@@ -204,7 +204,7 @@ def xi_strong_field(r: float, r_s: float) -> float:
     """
     if r <= 0:
         raise ValueError("r must be positive")
-    return 1 - np.exp(-PHI * r / r_s)
+    return 1 - np.exp(-PHI * r_s / r)
 
 
 def xi_auto(r: float, r_s: float, threshold: float = 100) -> Tuple[float, str]:

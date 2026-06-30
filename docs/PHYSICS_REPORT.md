@@ -288,7 +288,7 @@ In SSZ weak field:
 $$\Xi(r) = \frac{r_s}{2r}$$
 
 For strong field:
-$$\Xi(r) = 1 - e^{-\varphi r / r_s}$$
+$$\Xi(r) = 1 - e^{-\varphi r_s / r}$$
 
 The lensing model uses the weak-field form, valid for typical galaxy-scale lenses.
 
