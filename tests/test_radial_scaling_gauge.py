@@ -200,7 +200,7 @@ def xi_weak_field(r: float, r_s: float) -> float:
 def xi_strong_field(r: float, r_s: float) -> float:
     """
     Strong-field segment density (SSZ formulation).
-    Xi(r) = 1 - exp(-phi·r/r_s)  for r ~ r_s
+    Xi(r) = 1 - exp(-phi·r_s / r)  for r ~ r_s
     """
     if r <= 0:
         raise ValueError("r must be positive")
